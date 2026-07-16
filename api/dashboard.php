@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/../db.php';
 header('Content-Type: application/json');
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
 
 requireLogin();
 
@@ -8,10 +10,12 @@ requireLogin();
 $stats = [];
 
 // Materials in stock = count of materials with remaining > 0
-$stmt = $pdo->query("SELECT COUNT(*) AS c, COALESCE(SUM(quantity_delivered - quantity_used),0) AS total_remaining FROM materials");
+$stmt = $pdo->query("SELECT COUNT(*) AS c FROM materials m
+    WHERE (SELECT COALESCE(SUM(a.quantity_added),0) FROM material_additions a WHERE a.material_id = m.id)
+        - (SELECT COALESCE(SUM(u.quantity_used),0) FROM material_usage u WHERE u.material_id = m.id) > 0");
 $r = $stmt->fetch();
 $stats['materials_count'] = (int)$r['c'];
-$stats['materials_remaining'] = (int)$r['total_remaining'];
+$stats['materials_remaining'] = (int)$r['c'];
 
 // Workers
 $stmt = $pdo->query("SELECT worker_type, COUNT(*) AS c FROM workers GROUP BY worker_type");
@@ -31,8 +35,9 @@ $stmt = $pdo->prepare("SELECT COALESCE(SUM(amount),0) AS total FROM payments WHE
 $stmt->execute();
 $stats['weekly_expenditure'] = (float)$stmt->fetch()['total'];
 
-// Total pending payments
-$stmt = $pdo->query("SELECT COALESCE(SUM(amount),0) AS total FROM payments WHERE status = 'pending'");
+// Total pending wage payments (unpaid wages only)
+$stmt = $pdo->prepare("SELECT COALESCE(SUM(amount),0) AS total FROM payments WHERE status = 'pending' AND category = 'wage'");
+$stmt->execute();
 $stats['pending_payments'] = (float)$stmt->fetch()['total'];
 
 // Overall progress = latest percentage per milestone, averaged

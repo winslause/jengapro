@@ -261,9 +261,12 @@ async function generateWeeklyReport() {
 
         const generatedAt = new Date().toLocaleString();
         $('#reportContent').innerHTML = `
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-1">JengaPro Weekly Report with Dates</h2>
+                <p class="text-sm text-gray-500">Generated: ${generatedAt}</p>
+            </div>
             <div class="mb-4 p-3 bg-gray-50 rounded">
                 <p class="font-semibold">Week: ${ws} → ${we}</p>
-                <p class="text-xs text-gray-500">Report generated: ${generatedAt}</p>
                 <p class="text-xs text-gray-500">Days with recorded usage (${days.length}): ${dayList}</p>
             </div>
             <h3 class="font-semibold mb-2">Total Used per Category (this week)</h3>
@@ -282,6 +285,46 @@ async function generateWeeklyReport() {
             </table>`;
         openModal('reportModal');
     } catch (e) { showToast(e.message, 'error'); }
+}
+
+function printWeeklyReport() {
+    const content = $('#reportContent').innerHTML;
+    const win = window.open('', '_blank', 'width=900,height=700');
+    win.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>JengaPro Weekly Report</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
+                h2 { text-align: center; margin-bottom: 5px; }
+                .meta { text-align: center; color: #666; margin-bottom: 20px; font-size: 12px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                th, td { border: 1px solid #ccc; padding: 8px; text-align: left; font-size: 12px; }
+                th { background: #f3f4f6; }
+                .text-right { text-align: right; }
+                .mb-4 { margin-bottom: 16px; }
+                .space-y-1 > div { margin-bottom: 4px; }
+                .flex { display: flex; }
+                .justify-between { justify-content: space-between; }
+                .bg-gray-50 { background: #f9fafb; padding: 12px; border-radius: 6px; }
+                .font-semibold { font-weight: 600; }
+                .text-gray-500 { color: #6b7280; }
+                .text-gray-400 { color: #9ca3af; }
+                .text-sm { font-size: 12px; }
+                @media print {
+                    body { margin: 0; }
+                    .no-print { display: none; }
+                }
+            </style>
+        </head>
+        <body>
+            ${content}
+            <script>window.onload = function() { window.print(); }<\/script>
+        </body>
+        </html>
+    `);
+    win.document.close();
 }
 
 async function deleteMaterial(id) {
@@ -370,6 +413,65 @@ async function deleteUnit(id) {
         showToast('Unit removed.', 'success');
         loadUnits();
     } catch (e) { showToast(e.message, 'error'); }
+}
+
+// ================= SITE TEAM =================
+async function loadSiteTeam() {
+    try {
+        const out = await api('site_team');
+        const tbody = $('#teamTableBody');
+        if (!out.data.length) {
+            tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">No team members found.</td></tr>`;
+        } else {
+            tbody.innerHTML = out.data.map(t => `
+                <tr data-id="${t.id}">
+                    <td class="px-6 py-4 whitespace-nowrap">${esc(t.name)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${esc(t.role)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${esc(t.email || '-')}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${esc(t.phone || '-')}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <button class="text-blue-500 hover:text-blue-700 mr-2" data-edit-team="${t.id}"><i class="fas fa-edit"></i></button>
+                        <button class="text-red-500 hover:text-red-700" data-delete-team="${t.id}"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>`).join('');
+        }
+    } catch (e) { showToast(e.message, 'error'); }
+}
+
+async function saveTeamMember(e) {
+    e.preventDefault();
+    const fd = Object.fromEntries(new FormData(e.target).entries());
+    if (!fd.email) fd.email = null;
+    if (!fd.phone) fd.phone = null;
+    const id = $('#teamMemberId').value;
+    try {
+        if (id) { await api('site_team', 'PUT', fd, id); showToast('Team member updated.', 'success'); }
+        else { await api('site_team', 'POST', fd); showToast('Team member added.', 'success'); }
+        closeModal('teamMemberModal'); e.target.reset(); $('#teamMemberId').value = '';
+        $('#teamMemberModalTitle').textContent = 'Add Team Member';
+        loadSiteTeam();
+    } catch (err) { showToast(err.message, 'error'); }
+}
+
+async function editTeamMember(id) {
+    try {
+        const out = await api('site_team', 'GET', null, id);
+        const t = out.data;
+        $('#teamMemberId').value = t.id;
+        $('#teamMemberName').value = t.name;
+        $('#teamMemberRole').value = t.role;
+        $('#teamMemberEmail').value = t.email || '';
+        $('#teamMemberPhone').value = t.phone || '';
+        $('#teamMemberModalTitle').textContent = 'Edit Team Member';
+        openModal('teamMemberModal');
+    } catch (e) { showToast(e.message, 'error'); }
+}
+
+async function deleteTeamMember(id) {
+    const ok = await confirmDialog('Delete Team Member', 'Remove this team member? This cannot be undone.');
+    if (!ok) return;
+    try { await api('site_team', 'DELETE', null, id); showToast('Team member removed.', 'success'); loadSiteTeam(); }
+    catch (e) { showToast(e.message, 'error'); }
 }
 
 // ================= WORKERS =================
@@ -906,7 +1008,7 @@ function fetchLiveWeather() {
 let charts = {};
 async function loadDashboard() {
     try {
-        const out = await customApi('api/dashboard.php');
+        const out = await customApi('api/dashboard.php?t=' + Date.now());
         $('#statMaterials').textContent = out.materials_remaining;
         $('#statWorkers').textContent = out.workers_present_today + '/' + out.workers_total;
         $('#statExpenditure').textContent = fmtMoney(out.weekly_expenditure);
@@ -1010,6 +1112,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     closeBtns('#materialModal');
     bindModal($('#addWorkerBtn'), '#workerModal', '#workerModalTitle', 'Add Worker'); closeBtns('#workerModal');
+    bindModal($('#addTeamMemberBtn'), '#teamMemberModal', '#teamMemberModalTitle', 'Add Team Member'); closeBtns('#teamMemberModal');
     bindModal($('#addPaymentBtn'), '#paymentModal', '#paymentModalTitle', 'Add Payment'); closeBtns('#paymentModal');
     bindModal($('#addProgressBtn'), '#progressModal', '#progressModalTitle', 'Update Progress'); closeBtns('#progressModal');
     closeBtns('#usageModal');
@@ -1022,6 +1125,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Form submits
     $('#materialForm').addEventListener('submit', saveMaterial);
     $('#workerForm').addEventListener('submit', saveWorker);
+    $('#teamMemberForm').addEventListener('submit', saveTeamMember);
     $('#paymentForm').addEventListener('submit', savePayment);
     $('#progressForm').addEventListener('submit', saveProgress);
     $('#usageForm').addEventListener('submit', saveUsage);
@@ -1035,6 +1139,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Materials: weekly report + low stock card close
     $('#weeklyReportBtn').addEventListener('click', generateWeeklyReport);
+    $('#printReportBtn').addEventListener('click', printWeeklyReport);
     $('#lowStockClose').addEventListener('click', () => $('#lowStockCard').classList.add('hidden'));
 
     // Payment category toggle shows/hides worker linking
@@ -1058,17 +1163,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Event delegation for add/edit/delete/confirm buttons in tables
     document.body.addEventListener('click', (e) => {
-        const t = e.target.closest('[data-add],[data-edit],[data-delete],[data-confirm],[data-usage]');
+        const t = e.target.closest('[data-add],[data-edit],[data-delete],[data-confirm],[data-usage],[data-edit-team],[data-delete-team]');
         if (!t) return;
         if (t.dataset.confirm) { confirmWage(t.dataset.confirm); return; }
         if (t.dataset.usage) { openUsageModal(); return; }
         if (t.dataset.add) { addToMaterial(t.dataset.add); return; }
-        const id = t.dataset.edit || t.dataset.delete;
+        const isEdit = t.dataset.edit || t.dataset.editTeam;
+        const isDelete = t.dataset.delete || t.dataset.deleteTeam;
+        const id = isEdit || isDelete ? (t.dataset.edit || t.dataset.delete || t.dataset.editTeam || t.dataset.deleteTeam) : null;
         const section = t.closest('.main-section').id.replace('-section', '');
-        if (t.dataset.edit) {
-            ({ workers: editWorker, payments: editPayment, progress: editProgress }[section])(id);
+        if (!id) return;
+        if (isEdit) {
+            ({ workers: editWorker, payments: editPayment, progress: editProgress, site_team: editTeamMember }[section])(id);
         } else {
-            ({ materials: deleteMaterial, workers: deleteWorker, payments: deletePayment, progress: deleteProgress }[section])(id);
+            ({ materials: deleteMaterial, workers: deleteWorker, payments: deletePayment, progress: deleteProgress, site_team: deleteTeamMember }[section])(id);
         }
     });
 
@@ -1088,6 +1196,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadPayments();
     loadProgress();
     loadAttendance();
+    loadSiteTeam();
 
     // Restore last visited tab (persisted across refreshes)
     let saved = null;

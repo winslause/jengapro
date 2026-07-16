@@ -34,6 +34,10 @@ $entities = [
         'fields' => ['name','symbol'],
         'types'  => ['name'=>'str','symbol'=>'str'],
     ],
+    'site_team' => [
+        'fields' => ['name','role','email','phone'],
+        'types'  => ['name'=>'str','role'=>'str','email'=>'strnull','phone'=>'strnull'],
+    ],
 ];
 
 if (!isset($entities[$entity])) {
