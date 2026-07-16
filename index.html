@@ -3,177 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Construction Site Dashboard</title>
+    <title>JengaPro - Construction Site Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-        body {
-            overflow-x: hidden;
-        }
+        body { overflow-x: hidden; }
         .sidebar {
             transition: transform 0.3s ease-in-out;
-            background-color: #1e40af; /* Solid background for sidebar */
-            width: 256px;
-            flex-shrink: 0;
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 1000;
+            background-color: #1e40af;
+            width: 256px; flex-shrink: 0; height: 100vh;
+            position: fixed; top: 0; left: 0; z-index: 1000;
         }
-        .sidebar-collapsed {
-            transform: translateX(-100%);
-        }
-        .sidebar-expanded {
-            transform: translateX(0);
-        }
-        .content {
-            transition: margin-left 0.3s ease-in-out;
-            width: 100%;
-            margin-left: 256px;
-        }
-        .content-expanded {
-            margin-left: 0;
-        }
-        .progress-bar {
-            height: 10px;
-            border-radius: 5px;
-        }
-        .chart-container {
-            position: relative;
-            height: 300px;
-            width: 100%;
-        }
-        .table-responsive {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            width: 100%;
-        }
+        .sidebar-collapsed { transform: translateX(-100%); }
+        .sidebar-expanded { transform: translateX(0); }
+        .content { transition: margin-left 0.3s ease-in-out; width: 100%; margin-left: 256px; }
+        .content-expanded { margin-left: 0; }
+        .chart-container { position: relative; height: 300px; width: 100%; }
+        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-                width: 256px;
-                background-color: #1e40af; /* Ensure solid background on mobile */
-                box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
-            }
-            .sidebar-expanded {
-                transform: translateX(0);
-            }
-            .content {
-                margin-left: 0;
-                padding: 0.5rem;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-            #sidebarToggle {
-                display: block;
-                position: fixed;
-                top: 0.5rem;
-                left: 0.5rem;
-                z-index: 1001;
-                background: #fff;
-                padding: 0.5rem;
-                border-radius: 0.25rem;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            }
-            header {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: 0.5rem 1rem;
-                width: 100%;
-                box-sizing: border-box;
-            }
-            header h1 {
-                font-size: 1rem;
-                text-align: center;
-                flex-grow: 1;
-                margin: 0 0.5rem;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-            header .flex.items-center img {
-                width: 1.5rem;
-                height: 1.5rem;
-            }
-            header .flex.items-center span {
-                font-size: 0.875rem;
-                margin-left: 0.25rem;
-            }
-            .grid-cols-1.md\:grid-cols-2.lg\:grid-cols-4,
-            .grid-cols-1.md\:grid-cols-3,
-            .grid-cols-1.md\:grid-cols-2 {
-                grid-template-columns: 1fr;
-                gap: 0.5rem;
-                width: 100%;
-            }
-            .table-responsive table {
-                width: 100%;
-                min-width: 600px; /* Ensure tables are wide enough to require scrolling */
-            }
-            .table-responsive th,
-            .DOF0
-            .table-responsive td {
-                padding: 0.5rem;
-                font-size: 0.875rem;
-            }
-            .table-responsive th {
-                background: #f9fafb;
-                font-weight: 600;
-                text-align: left;
-            }
-            .table-responsive td {
-                border-bottom: 1px solid #e5e7eb;
-                text-align: left;
-            }
-            main.p-6 {
-                padding: 0.5rem;
-                width: 100%;
-            }
-            .chart-container {
-                height: 200px;
-            }
-            .modal .max-w-md {
-                width: 95%;
-                margin: 0 auto;
-            }
-            .bg-white.rounded-lg.shadow.p-6 {
-                padding: 0.5rem;
-                width: 100%;
-            }
-            .flex.justify-between.items-center.mb-4 {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-            button.bg-blue-500 {
-                width: 100%;
-                text-align: center;
-            }
+            .sidebar { transform: translateX(-100%); width: 256px; box-shadow: 2px 0 5px rgba(0,0,0,0.2); }
+            .sidebar-expanded { transform: translateX(0); }
+            .content { margin-left: 0; }
+            #sidebarToggle { display: block; position: fixed; top: 0.5rem; left: 0.5rem; z-index: 1001; background: #fff; padding: 0.5rem; border-radius: 0.25rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+            .table-responsive table { min-width: 600px; }
         }
         @media (min-width: 769px) {
-            .sidebar {
-                transform: translateX(0);
-            }
-            #sidebarToggle {
-                display: none;
-            }
-            .content {
-                margin-left: 256px;
-            }
+            .sidebar { transform: translateX(0); }
+            #sidebarToggle { display: none; }
+            .content { margin-left: 256px; }
         }
-        .main-section {
-            display: none;
-        }
-        .main-section.active {
-            display: block;
-            width: 100%;
-        }
+        .main-section { display: none; }
+        .main-section.active { display: block; width: 100%; }
     </style>
 </head>
 <body class="bg-gray-100">
+
+    <!-- Toast container -->
+    <div id="toastContainer" class="fixed top-4 right-4 z-50 flex flex-col space-y-2"></div>
+
     <div class="flex h-screen overflow-hidden">
         <!-- Sidebar -->
         <div class="sidebar bg-blue-800 text-white">
@@ -182,49 +50,23 @@
                 <span class="logo-text text-xl font-bold">JengaPro</span>
             </div>
             <nav class="mt-6">
-                <div class="nav-item px-6 py-3 flex items-center hover:bg-blue-700 cursor-pointer" data-section="dashboard">
-                    <i class="fas fa-tachometer-alt mr-3"></i>
-                    <span class="sidebar-text">Dashboard</span>
-                </div>
-                <div class="nav-item px-6 py-3 flex items-center hover:bg-blue-700 cursor-pointer" data-section="materials">
-                    <i class="fas fa-boxes mr-3"></i>
-                    <span class="sidebar-text">Materials</span>
-                </div>
-                <div class="nav-item px-6 py-3 flex items-center hover:bg-blue-700 cursor-pointer" data-section="workers">
-                    <i class="fas fa-users mr-3"></i>
-                    <span class="sidebar-text">Workers</span>
-                </div>
-                <div class="nav-item px-6 py-3 flex items-center hover:bg-blue-700 cursor-pointer" data-section="payments">
-                    <i class="fas fa-money-bill-wave mr-3"></i>
-                    <span class="sidebar-text">Payments</span>
-                </div>
-                <div class="nav-item px-6 py-3 flex items-center hover:bg-blue-700 cursor-pointer" data-section="progress">
-                    <i class="fas fa-chart-line mr-3"></i>
-                    <span class="sidebar-text">Progress</span>
-                </div>
-                <div class="nav-item px-6 py-3 flex items-center hover:bg-blue-700 cursor-pointer" data-section="weather">
-                    <i class="fas fa-cloud-sun mr-3"></i>
-                    <span class="sidebar-text">Weather</span>
-                </div>
-                <div class="nav-item px-6 py-3 flex items-center hover:bg-blue-700 cursor-pointer" data-section="settings">
-                    <i class="fas fa-cog mr-3"></i>
-                    <span class="sidebar-text">Settings</span>
-                </div>
-                <div class="nav-item px-6 py-3 flex items-center hover:bg-blue-700 cursor-pointer" data-section="team">
-                    <i class="fas fa-user-friends mr-3"></i>
-                    <span class="sidebar-text">Site Team</span>
-                </div>
+                <div class="nav-item px-6 py-3 flex items-center hover:bg-blue-700 cursor-pointer" data-section="dashboard"><i class="fas fa-tachometer-alt mr-3"></i><span>Dashboard</span></div>
+                <div class="nav-item px-6 py-3 flex items-center hover:bg-blue-700 cursor-pointer" data-section="materials"><i class="fas fa-boxes mr-3"></i><span>Materials</span></div>
+                <div class="nav-item px-6 py-3 flex items-center hover:bg-blue-700 cursor-pointer" data-section="workers"><i class="fas fa-users mr-3"></i><span>Workers</span></div>
+                <div class="nav-item px-6 py-3 flex items-center hover:bg-blue-700 cursor-pointer" data-section="payments"><i class="fas fa-money-bill-wave mr-3"></i><span>Payments</span></div>
+                <div class="nav-item px-6 py-3 flex items-center hover:bg-blue-700 cursor-pointer" data-section="progress"><i class="fas fa-chart-line mr-3"></i><span>Progress</span></div>
+                <div class="nav-item px-6 py-3 flex items-center hover:bg-blue-700 cursor-pointer" data-section="weather"><i class="fas fa-cloud-sun mr-3"></i><span>Weather</span></div>
+                <div class="nav-item px-6 py-3 flex items-center hover:bg-blue-700 cursor-pointer" data-section="settings"><i class="fas fa-cog mr-3"></i><span>Settings</span></div>
+                <div class="nav-item px-6 py-3 flex items-center hover:bg-blue-700 cursor-pointer" data-section="team"><i class="fas fa-user-friends mr-3"></i><span>Site Team</span></div>
+                <div class="nav-item px-6 py-3 flex items-center hover:bg-blue-700 cursor-pointer" id="logoutBtn"><i class="fas fa-sign-out-alt mr-3"></i><span>Logout</span></div>
             </nav>
         </div>
 
         <!-- Main Content -->
         <div class="content flex-1 overflow-auto">
-            <!-- Top Navigation -->
             <header class="bg-white shadow-sm py-4 px-6 flex justify-between items-center">
                 <div class="flex items-center">
-                    <button id="sidebarToggle" class="text-gray-500 focus:outline-none">
-                        <i class="fas fa-bars text-xl"></i>
-                    </button>
+                    <button id="sidebarToggle" class="text-gray-500 focus:outline-none"><i class="fas fa-bars text-xl"></i></button>
                 </div>
                 <h1 class="text-xl font-semibold text-gray-800">Construction Site Dashboard</h1>
                 <div class="flex items-center">
@@ -233,412 +75,248 @@
                         <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
                     </div>
                     <div class="flex items-center">
-                        <img src="https://via.placeholder.com/40" alt="User" class="rounded-full h-8 w-8">
-                        <span class="ml-2 text-gray-700 text-sm">Site Manager</span>
+                        <img src="https://ui-avatars.com/api/?background=2563eb&color=fff&name=Manager" alt="User" class="rounded-full h-8 w-8">
+                        <span id="userDisplayName" class="ml-2 text-gray-700 text-sm">Site Manager</span>
                     </div>
                 </div>
             </header>
 
-            <!-- Dashboard Content -->
             <main class="p-6">
-                <!-- Dashboard Section -->
-                <div id="dashboard-section" class="main-section active">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <!-- Persistent Tab Bar (remembers last tab across refreshes) -->
+                <div id="topTabs" class="flex flex-wrap gap-1 mb-6 border-b border-gray-200 overflow-x-auto">
+                    <button class="tab-btn px-4 py-2 text-sm font-medium text-gray-500 hover:text-blue-600 border-b-2 border-transparent" data-section="dashboard"><i class="fas fa-tachometer-alt mr-1"></i>Dashboard</button>
+                    <button class="tab-btn px-4 py-2 text-sm font-medium text-gray-500 hover:text-blue-600 border-b-2 border-transparent" data-section="materials"><i class="fas fa-boxes mr-1"></i>Materials</button>
+                    <button class="tab-btn px-4 py-2 text-sm font-medium text-gray-500 hover:text-blue-600 border-b-2 border-transparent" data-section="workers"><i class="fas fa-users mr-1"></i>Workers</button>
+                    <button class="tab-btn px-4 py-2 text-sm font-medium text-gray-500 hover:text-blue-600 border-b-2 border-transparent" data-section="payments"><i class="fas fa-money-bill-wave mr-1"></i>Payments</button>
+                    <button class="tab-btn px-4 py-2 text-sm font-medium text-gray-500 hover:text-blue-600 border-b-2 border-transparent" data-section="progress"><i class="fas fa-chart-line mr-1"></i>Progress</button>
+                    <button class="tab-btn px-4 py-2 text-sm font-medium text-gray-500 hover:text-blue-600 border-b-2 border-transparent" data-section="weather"><i class="fas fa-cloud-sun mr-1"></i>Weather</button>
+                    <button class="tab-btn px-4 py-2 text-sm font-medium text-gray-500 hover:text-blue-600 border-b-2 border-transparent" data-section="settings"><i class="fas fa-cog mr-1"></i>Settings</button>
+                    <button class="tab-btn px-4 py-2 text-sm font-medium text-gray-500 hover:text-blue-600 border-b-2 border-transparent" data-section="team"><i class="fas fa-user-friends mr-1"></i>Site Team</button>
+                </div>
+
+                <!-- DASHBOARD -->
+                <div id="dashboard-section" class="main-section">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-6">
                         <div class="bg-white rounded-lg shadow p-6">
                             <div class="flex justify-between items-center">
-                                <div>
-                                    <p class="text-gray-500">Materials In Stock</p>
-                                    <h3 class="text-2xl font-bold">24</h3>
-                                </div>
-                                <div class="bg-blue-100 p-3 rounded-full">
-                                    <i class="fas fa-boxes text-blue-500 text-xl"></i>
-                                </div>
+                                <div><p class="text-gray-500">Materials In Stock</p><h3 id="statMaterials" class="text-2xl font-bold">0</h3></div>
+                                <div class="bg-blue-100 p-3 rounded-full"><i class="fas fa-boxes text-blue-500 text-xl"></i></div>
                             </div>
                         </div>
                         <div class="bg-white rounded-lg shadow p-6">
                             <div class="flex justify-between items-center">
-                                <div>
-                                    <p class="text-gray-500">Workers Today</p>
-                                    <h3 class="text-2xl font-bold">18/22</h3>
-                                </div>
-                                <div class="bg-green-100 p-3 rounded-full">
-                                    <i class="fas fa-users text-green-500 text-xl"></i>
-                                </div>
+                                <div><p class="text-gray-500">Workers Today</p><h3 id="statWorkers" class="text-2xl font-bold">0/0</h3></div>
+                                <div class="bg-green-100 p-3 rounded-full"><i class="fas fa-users text-green-500 text-xl"></i></div>
                             </div>
                         </div>
                         <div class="bg-white rounded-lg shadow p-6">
                             <div class="flex justify-between items-center">
-                                <div>
-                                    <p class="text-gray-500">Weekly Expenditure</p>
-                                    <h3 class="text-2xl font-bold">KSh 1,557,250</h3>
-                                </div>
-                                <div class="bg-yellow-100 p-3 rounded-full">
-                                    <i class="fas fa-money-bill-wave text-yellow-500 text-xl"></i>
-                                </div>
+                                <div><p class="text-gray-500">Weekly Spend</p><h3 id="statExpenditure" class="text-2xl font-bold">KSh 0</h3></div>
+                                <div class="bg-yellow-100 p-3 rounded-full"><i class="fas fa-money-bill-wave text-yellow-500 text-xl"></i></div>
                             </div>
                         </div>
                         <div class="bg-white rounded-lg shadow p-6">
                             <div class="flex justify-between items-center">
-                                <div>
-                                    <p class="text-gray-500">Project Progress</p>
-                                    <h3 class="text-2xl font-bold">42%</h3>
-                                </div>
-                                <div class="bg-purple-100 p-3 rounded-full">
-                                    <i class="fas fa-chart-line text-purple-500 text-xl"></i>
-                                </div>
+                                <div><p class="text-gray-500">Pending Pay</p><h3 id="statPending" class="text-2xl font-bold">KSh 0</h3></div>
+                                <div class="bg-red-100 p-3 rounded-full"><i class="fas fa-hourglass-half text-red-500 text-xl"></i></div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex justify-between items-center">
+                                <div><p class="text-gray-500">Project Progress</p><h3 id="statProgress" class="text-2xl font-bold">0%</h3></div>
+                                <div class="bg-purple-100 p-3 rounded-full"><i class="fas fa-chart-line text-purple-500 text-xl"></i></div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Materials Section -->
+                <!-- MATERIALS -->
                 <div id="materials-section" class="main-section">
                     <div class="bg-white rounded-lg shadow p-6">
-                        <div class="flex justify-between items-center mb-4">
+                        <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
                             <h2 class="text-lg font-semibold">Materials Inventory</h2>
-                            <button id="addMaterialBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                                <i class="fas fa-plus mr-2"></i>Add Material
-                            </button>
+                            <div class="flex gap-2">
+                                <button id="weeklyReportBtn" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"><i class="fas fa-file-alt mr-2"></i>Weekly Report</button>
+                                <button id="addMaterialBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"><i class="fas fa-plus mr-2"></i>Add Material</button>
+                            </div>
                         </div>
                         <div class="table-responsive">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Material</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Delivered</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Used</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Remaining</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Depletion Date</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Material</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Added</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Used (Total)</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Used Today</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Used This Week</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Remaining</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Depletion</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap">Cement (50kg bags)</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">100 (05/08)</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">32</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">68</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">18/08</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <button class="text-blue-500 hover:text-blue-700 mr-2"><i class="fas fa-edit"></i></button>
-                                            <button class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap">Steel Bars (8mm)</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">200 (03/08)</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">85</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">115</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">15/08</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <button class="text-blue-500 hover:text-blue-700 mr-2"><i class="fas fa-edit"></i></button>
-                                            <button class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap">Sand (cu.m)</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">50 (01/08)</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">22</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">28</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">10/08</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <button class="text-blue-500 hover:text-blue-700 mr-2"><i class="fas fa-edit"></i></button>
-                                            <button class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
-                                        </td>
-                                    </tr>
-                                </tbody>
+                                <tbody id="materialsTableBody" class="bg-white divide-y divide-gray-200"></tbody>
                             </table>
                         </div>
                     </div>
                 </div>
 
-                <!-- Workers Section -->
+                <!-- WORKERS -->
                 <div id="workers-section" class="main-section">
-                    <div class="bg-white rounded-lg shadow p-6">
+                    <div class="bg-white rounded-lg shadow p-6 mb-6">
                         <div class="flex justify-between items-center mb-4">
-                            <h2 class="text-lg font-semibold">Today's Workers</h2>
-                            <button id="addWorkerBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                                <i class="fas fa-plus mr-2"></i>Add Worker
-                            </button>
-                        </div>
-                        <div class="mb-4">
-                            <div class="flex justify-between mb-2">
-                                <span>Fundi (Skilled)</span>
-                                <span>8/10</span>
-                            </div>
-                            <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                <div class="bg-green-600 h-2.5 rounded-full" style="width: 80%"></div>
-                            </div>
-                        </div>
-                        <div class="mb-4">
-                            <div class="flex justify-between mb-2">
-                                <span>Casual Workers</span>
-                                <span>10/12</span>
-                            </div>
-                            <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                <div class="bg-blue-600 h-2.5 rounded-full" style="width: 83%"></div>
-                            </div>
+                            <h2 class="text-lg font-semibold">Workers</h2>
+                            <button id="addWorkerBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"><i class="fas fa-plus mr-2"></i>Add Worker</button>
                         </div>
                         <div class="table-responsive">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mon</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tue</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Wed</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thu</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fri</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sat</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sun</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Daily Rate</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap">John Kamau</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">Fundi</td>
-                                        <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="attendance" data-worker="john_kamau" data-day="mon" checked></td>
-                                        <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="attendance" data-worker="john_kamau" data-day="tue" checked></td>
-                                        <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="attendance" data-worker="john_kamau" data-day="wed"></td>
-                                        <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="attendance" data-worker="john_kamau" data-day="thu"></td>
-                                        <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="attendance" data-worker="john_kamau" data-day="fri"></td>
-                                        <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="attendance" data-worker="john_kamau" data-day="sat"></td>
-                                        <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="attendance" data-worker="john_kamau" data-day="sun"></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap">Peter Mwangi</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">Fundi</td>
-                                        <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="attendance" data-worker="peter_mwangi" data-day="mon"></td>
-                                        <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="attendance" data-worker="peter_mwangi" data-day="tue"></td>
-                                        <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="attendance" data-worker="peter_mwangi" data-day="wed"></td>
-                                        <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="attendance" data-worker="peter_mwangi" data-day="thu"></td>
-                                        <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="attendance" data-worker="peter_mwangi" data-day="fri"></td>
-                                        <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="attendance" data-worker="peter_mwangi" data-day="sat"></td>
-                                        <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="attendance" data-worker="peter_mwangi" data-day="sun"></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap">James Omondi</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">Casual</td>
-                                        <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="attendance" data-worker="james_omondi" data-day="mon" checked></td>
-                                        <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="attendance" data-worker="james_omondi" data-day="tue" checked></td>
-                                        <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="attendance" data-worker="james_omondi" data-day="wed" checked></td>
-                                        <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="attendance" data-worker="james_omondi" data-day="thu"></td>
-                                        <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="attendance" data-worker="james_omondi" data-day="fri"></td>
-                                        <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="attendance" data-worker="james_omondi" data-day="sat"></td>
-                                        <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="attendance" data-worker="james_omondi" data-day="sun"></td>
-                                    </tr>
-                                </tbody>
+                                <tbody id="workersTableBody" class="bg-white divide-y divide-gray-200"></tbody>
                             </table>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
+                            <div>
+                                <h2 class="text-lg font-semibold">Weekly Attendance</h2>
+                                <p id="weekRangeLabel" class="text-xs text-gray-500"></p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs text-gray-400">Mark attendance above, then use "Generate From Attendance" in the Worker Wages tab.</span>
+                            </div>
+                        </div>
+                        <div class="table-responsive mb-4">
+                            <table class="min-w-full divide-y divide-gray-200 text-sm">
+                                <thead id="attendanceHead" class="bg-gray-50"></thead>
+                                <tbody id="attendanceBody" class="bg-white divide-y divide-gray-200"></tbody>
+                                <tfoot id="attendanceFoot" class="bg-gray-50 font-semibold"></tfoot>
+                            </table>
+                        </div>
+                        <div class="flex flex-wrap items-center justify-between gap-2 text-sm">
+                            <div>
+                                <span class="text-gray-500">Total workers pay this week: </span>
+                                <span id="weeklyTotal" class="text-xl font-bold text-green-600">KSh 0</span>
+                            </div>
+                            <p class="text-xs text-gray-400">Checking any day (including future days) updates the total instantly. The week refreshes every Saturday.</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Payments Section -->
+                <!-- PAYMENTS -->
                 <div id="payments-section" class="main-section">
-                    <div class="bg-white rounded-lg shadow p-6">
+                    <div class="bg-white rounded-lg shadow p-6 mb-6">
                         <div class="flex justify-between items-center mb-4">
-                            <h2 class="text-lg font-semibold">Payment Records</h2>
-                            <button id="addPaymentBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                                <i class="fas fa-plus mr-2"></i>Add Payment
-                            </button>
+                            <div>
+                                <h2 class="text-lg font-semibold">Worker Wages</h2>
+                                <p class="text-xs text-gray-500">Per-worker pending total. Confirm to mark paid and lock this week's attendance.</p>
+                            </div>
+                            <button id="generateWagesBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"><i class="fas fa-calculator mr-2"></i>Generate From Attendance</button>
                         </div>
                         <div class="table-responsive">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Worker Type</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Recipient</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Worker</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rate</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pending Total</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
                                     </tr>
                                 </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
+                                <tbody id="wageSummaryBody" class="bg-white divide-y divide-gray-200"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <div>
+                                <h2 class="text-lg font-semibold">Other Payments</h2>
+                                <p class="text-xs text-gray-500">Anything else: items bought (even unplanned), extra work, transport, etc. Can be linked to a worker or a free recipient.</p>
+                            </div>
+                            <button id="addOtherPaymentBtn" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"><i class="fas fa-plus mr-2"></i>Add Other Payment</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
                                     <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap">05/08/2023</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">Cement Delivery</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">-</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">KSh 150,000</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">Bamburi Cement</td>
-                                        <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Paid</span></td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <button class="text-blue-500 hover:text-blue-700 mr-2"><i class="fas fa-receipt"></i></button>
-                                            <button class="text-blue-500 hover:text-blue-700"><i class="fas fa-edit"></i></button>
-                                        </td>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Recipient</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                                     </tr>
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap">03/08/2023</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">Steel Bars</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">-</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">KSh 312,500</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">Devki Steel</td>
-                                        <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Paid</span></td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <button class="text-blue-500 hover:text-blue-700 mr-2"><i class="fas fa-receipt"></i></button>
-                                            <button class="text-blue-500 hover:text-blue-700"><i class="fas fa-edit"></i></button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap">01/08/2023</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">Worker Wages</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">Fundi</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">KSh 3,000</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">John Kamau</td>
-                                        <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">Pending</span></td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <button class="text-blue-500 hover:text-blue-700 mr-2"><i class="fas fa-receipt"></i></button>
-                                            <button class="text-blue-500 hover:text-blue-700"><i class="fas fa-edit"></i></button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap">01/08/2023</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">Worker Wages</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">Casual</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">KSh 2,100</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">James Omondi</td>
-                                        <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">Pending</span></td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <button class="text-blue-500 hover:text-blue-700 mr-2"><i class="fas fa-receipt"></i></button>
-                                            <button class="text-blue-500 hover:text-blue-700"><i class="fas fa-edit"></i></button>
-                                        </td>
-                                    </tr>
-                                </tbody>
+                                </thead>
+                                <tbody id="otherPaymentsTableBody" class="bg-white divide-y divide-gray-200"></tbody>
                             </table>
                         </div>
                     </div>
                 </div>
 
-                <!-- Progress Section -->
+                <!-- PROGRESS -->
                 <div id="progress-section" class="main-section">
                     <div class="bg-white rounded-lg shadow p-6">
                         <div class="flex justify-between items-center mb-4">
                             <h2 class="text-lg font-semibold">Project Progress</h2>
-                            <button id="addProgressBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                                <i class="fas fa-plus mr-2"></i>Update Progress
-                            </button>
+                            <button id="addProgressBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"><i class="fas fa-plus mr-2"></i>Update Progress</button>
                         </div>
-                        <div class="mb-6">
-                            <div class="flex justify-between mb-2">
-                                <span>Overall Completion</span>
-                                <span>42%</span>
-                            </div>
-                            <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                <div class="bg-blue-600 h-2.5 rounded-full" style="width: 42%"></div>
-                            </div>
+                        <div class="table-responsive">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Milestone</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Completion</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="progressTableBody" class="bg-white divide-y divide-gray-200"></tbody>
+                            </table>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div>
-                                <h3 class="font-medium mb-2">Milestones</h3>
-                                <div class="space-y-4">
-                                    <div>
-                                        <div class="flex justify-between mb-1">
-                                            <span>Foundation</span>
-                                            <span>100%</span>
-                                        </div>
-                                        <div class="w-full bg-gray-200 rounded-full h-2">
-                                            <div class="bg-green-600 h-2 rounded-full" style="width: 100%"></div>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="flex justify-between mb-1">
-                                            <span>Structure</span>
-                                            <span>65%</span>
-                                        </div>
-                                        <div class="w-full bg-gray-200 rounded-full h-2">
-                                            <div class="bg-blue-600 h-2 rounded-full" style="width: 65%"></div>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="flex justify-between mb-1">
-                                            <span>Roofing</span>
-                                            <span>15%</span>
-                                        </div>
-                                        <div class="w-full bg-gray-200 rounded-full h-2">
-                                            <div class="bg-yellow-500 h-2 rounded-full" style="width: 15%"></div>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="flex justify-between mb-1">
-                                            <span>Finishing</span>
-                                            <span>0%</span>
-                                        </div>
-                                        <div class="w-full bg-gray-200 rounded-full h-2">
-                                            <div class="bg-gray-400 h-2 rounded-full" style="width: 0%"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div>
-                                <h3 class="font-medium mb-2">Expenditure</h3>
-                                <div class="chart-container">
-                                    <canvas id="expenditureChart"></canvas>
-                                </div>
-                            </div>
-                            <div>
-                                <h3 class="font-medium mb-2">Progress Over Time</h3>
-                                <div class="chart-container">
-                                    <canvas id="progressChart"></canvas>
-                                </div>
-                            </div>
-                            <div>
-                                <h3 class="font-medium mb-2">Milestone Distribution</h3>
-                                <div class="chart-container">
-                                    <canvas id="milestoneChart"></canvas>
-                                </div>
-                            </div>
+                        <div class="mt-6">
+                            <h3 class="font-medium mb-2">Progress Over Time</h3>
+                            <div class="chart-container"><canvas id="progressChart"></canvas></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Weather Section -->
+                <!-- WEATHER -->
                 <div id="weather-section" class="main-section">
-                    <div class="bg-white rounded-lg shadow p-6">
+                    <div class="bg-white rounded-lg shadow p-6 mb-6">
                         <div class="flex justify-between items-center mb-4">
-                            <h2 class="text-lg font-semibold">Weather Conditions</h2>
-                            <button id="addWeatherBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                                <i class="fas fa-plus mr-2"></i>Update Weather
-                            </button>
+                            <h2 class="text-lg font-semibold">Weather &amp; Site Advice</h2>
+                            <button id="liveWeatherBtn" class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600"><i class="fas fa-satellite-dish mr-2"></i>Refresh Weather</button>
                         </div>
-                        <div class="flex items-center mb-4">
-                            <i class="fas fa-sun text-yellow-500 text-4xl mr-4"></i>
-                            <div>
-                                <p class="text-gray-500">Today</p>
-                                <h3 class="text-2xl font-bold">Sunny, 28°C</h3>
+                        <div id="weatherStatus" class="text-sm text-gray-500 mb-4">Click "Refresh Weather" (or open this tab) to share your location and load today's conditions and the 7-day forecast.</div>
+                        <div id="liveWeather" class="hidden">
+                            <div class="flex items-center mb-4 p-4 bg-blue-50 rounded-lg">
+                                <img id="liveIcon" src="https://openweathermap.org/img/wn/01d@2x.png" alt="weather" class="h-16 w-16" onerror="this.style.display='none'">
+                                <div class="ml-4">
+                                    <p id="liveCity" class="font-semibold text-gray-800"></p>
+                                    <h3 id="liveTemp" class="text-3xl font-bold text-gray-800"></h3>
+                                    <p id="liveDesc" class="text-sm text-gray-600 capitalize"></p>
+                                </div>
+                                <div class="ml-auto text-sm text-gray-600 text-right">
+                                    <div>Feels like: <span id="liveFeels"></span></div>
+                                    <div>Humidity: <span id="liveHumidity"></span></div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="mb-4">
-                            <p class="text-gray-600 mb-2">Effect on Work:</p>
-                            <p class="text-sm">Good conditions for concrete work and exterior construction.</p>
-                        </div>
-                        <div class="grid grid-cols-3 gap-2 text-center">
-                            <div class="p-2">
-                                <p class="text-sm text-gray-500">Tue</p>
-                                <i class="fas fa-cloud-sun text-gray-400"></i>
-                                <p class="text-sm">26°C</p>
-                            </div>
-                            <div class="p-2 bg-blue-50 rounded">
-                                <p class="text-sm text-gray-500">Wed</p>
-                                <i class="fas fa-cloud-rain text-blue-400"></i>
-                                <p class="text-sm">24°C</p>
-                            </div>
-                            <div class="p-2">
-                                <p class="text-sm text-gray-500">Thu</p>
-                                <i class="fas fa-cloud text-gray-400"></i>
-                                <p class="text-sm">25°C</p>
-                            </div>
-                        </div>
-                        <div class="mt-4">
-                            <button id="addWeatherBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full">
-                                <i class="fas fa-plus mr-2"></i>Update Weather
-                            </button>
+                            <h3 class="font-medium mb-2 text-gray-700">7-Day Forecast &amp; Construction Advice</h3>
+                            <div id="liveForecast" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3"></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Settings Section -->
+                <!-- SETTINGS -->
                 <div id="settings-section" class="main-section">
                     <div class="bg-white rounded-lg shadow p-6">
                         <h2 class="text-lg font-semibold mb-4">Settings</h2>
@@ -646,37 +324,27 @@
                             <div>
                                 <h3 class="font-medium mb-2">General Settings</h3>
                                 <div class="mb-4">
-                                    <label for="siteName" class="block text-sm font-medium text-gray-700 mb-1">Site Name</label>
-                                    <input type="text" id="siteName" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" value="JengaPro">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Site Name</label>
+                                    <input type="text" value="JengaPro" class="w-full px-3 py-2 border border-gray-300 rounded-md">
                                 </div>
                                 <div class="mb-4">
-                                    <label for="siteLocation" class="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                                    <input type="text" id="siteLocation" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" value="Nairobi, Kenya">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                                    <input type="text" value="Nairobi, Kenya" class="w-full px-3 py-2 border border-gray-300 rounded-md">
                                 </div>
                             </div>
                             <div>
                                 <h3 class="font-medium mb-2">Notification Preferences</h3>
-                                <div class="mb-4">
-                                    <label class="flex items-center">
-                                        <input type="checkbox" class="mr-2">
-                                        <span class="text-sm text-gray-700">Email Notifications</span>
-                                    </label>
-                                </div>
-                                <div class="mb-4">
-                                    <label class="flex items-center">
-                                        <input type="checkbox" class="mr-2">
-                                        <span class="text-sm text-gray-700">SMS Notifications</span>
-                                    </label>
-                                </div>
+                                <label class="flex items-center mb-2"><input type="checkbox" class="mr-2"><span class="text-sm">Email Notifications</span></label>
+                                <label class="flex items-center"><input type="checkbox" class="mr-2"><span class="text-sm">SMS Notifications</span></label>
                             </div>
                             <div class="flex justify-end">
-                                <button class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Save Settings</button>
+                                <button onclick="showToast('Settings saved.','success')" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Save Settings</button>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Site Team Section -->
+                <!-- TEAM -->
                 <div id="team-section" class="main-section">
                     <div class="bg-white rounded-lg shadow p-6">
                         <h2 class="text-lg font-semibold mb-4">Site Team</h2>
@@ -684,45 +352,20 @@
                             <div>
                                 <h3 class="font-medium mb-3">Site Manager</h3>
                                 <div class="flex items-center p-4 bg-gray-50 rounded-lg">
-                                    <img src="https://via.placeholder.com/60" alt="Manager" class="rounded-full h-12 w-12 mr-4">
+                                    <img src="https://ui-avatars.com/api/?background=2563eb&color=fff&name=Manager" alt="" class="rounded-full h-12 w-12 mr-4">
                                     <div>
-                                        <h4 class="font-medium">Michael Johnson</h4>
-                                        <p class="text-sm text-gray-500">michael@JengaPro.com</p>
-                                        <p class="text-sm text-gray-500">+254 712 345 678</p>
+                                        <h4 class="font-medium" id="teamManagerName">Site Manager</h4>
+                                        <p class="text-sm text-gray-500">michael@jengapro.com</p>
                                     </div>
                                 </div>
                             </div>
                             <div>
-                                <h3 class="font-medium mb-3">Site Crew</h3>
+                                <h3 class="font-medium mb-3">Roles</h3>
                                 <div class="grid grid-cols-2 gap-4">
-                                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
-                                        <img src="https://via.placeholder.com/40" alt="Crew" class="rounded-full h-8 w-8 mr-3">
-                                        <div>
-                                            <h4 class="text-sm font-medium">David Ochieng</h4>
-                                            <p class="text-xs text-gray-500">Foreman</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
-                                        <img src="https://via.placeholder.com/40" alt="Crew" class="rounded-full h-8 w-8 mr-3">
-                                        <div>
-                                            <h4 class="text-sm font-medium">Sarah Muthoni</h4>
-                                            <p class="text-xs text-gray-500">Safety Officer</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
-                                        <img src="https://via.placeholder.com/40" alt="Crew" class="rounded-full h-8 w-8 mr-3">
-                                        <div>
-                                            <h4 class="text-sm font-medium">Paul Gitonga</h4>
-                                            <p class="text-xs text-gray-500">Surveyor</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
-                                        <img src="https://via.placeholder.com/40" alt="Crew" class="rounded-full h-8 w-8 mr-3">
-                                        <div>
-                                            <h4 class="text-sm font-medium">Grace Wambui</h4>
-                                            <p class="text-xs text-gray-500">Store Keeper</p>
-                                        </div>
-                                    </div>
+                                    <div class="flex items-center p-3 bg-gray-50 rounded-lg"><img src="https://ui-avatars.com/api/?name=Foreman" class="rounded-full h-8 w-8 mr-3"><div><h4 class="text-sm font-medium">David Ochieng</h4><p class="text-xs text-gray-500">Foreman</p></div></div>
+                                    <div class="flex items-center p-3 bg-gray-50 rounded-lg"><img src="https://ui-avatars.com/api/?name=Safety" class="rounded-full h-8 w-8 mr-3"><div><h4 class="text-sm font-medium">Sarah Muthoni</h4><p class="text-xs text-gray-500">Safety Officer</p></div></div>
+                                    <div class="flex items-center p-3 bg-gray-50 rounded-lg"><img src="https://ui-avatars.com/api/?name=Surveyor" class="rounded-full h-8 w-8 mr-3"><div><h4 class="text-sm font-medium">Paul Gitonga</h4><p class="text-xs text-gray-500">Surveyor</p></div></div>
+                                    <div class="flex items-center p-3 bg-gray-50 rounded-lg"><img src="https://ui-avatars.com/api/?name=Store" class="rounded-full h-8 w-8 mr-3"><div><h4 class="text-sm font-medium">Grace Wambui</h4><p class="text-xs text-gray-500">Store Keeper</p></div></div>
                                 </div>
                             </div>
                         </div>
@@ -732,496 +375,197 @@
         </div>
     </div>
 
-    <!-- Add Material Modal -->
-    <div id="materialModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <!-- Material Modal -->
+    <div id="materialModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-40">
         <div class="bg-white rounded-lg p-6 w-full max-w-md">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold">Add Material</h3>
-                <button id="closeMaterialModal" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times"></i>
-                </button>
+                <h3 id="materialModalTitle" class="text-lg font-semibold">Add Material</h3>
+                <button data-close class="text-gray-500 hover:text-gray-700"><i class="fas fa-times"></i></button>
             </div>
             <form id="materialForm">
-                <div class="mb-4">
-                    <label for="materialName" class="block text-sm font-medium text-gray-700 mb-1">Material Name</label>
-                    <input type="text" id="materialName" name="material_name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="hidden" id="materialId" name="id">
+                <div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-1">Material Name</label><input type="text" id="materialName" name="name" required class="w-full px-3 py-2 border border-gray-300 rounded-md"></div>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Delivery Date</label><input type="date" id="deliveryDate" name="delivery_date" class="w-full px-3 py-2 border border-gray-300 rounded-md"></div>
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Qty Delivered (Added)</label><input type="number" id="quantityDelivered" name="quantity_delivered" required class="w-full px-3 py-2 border border-gray-300 rounded-md"></div>
                 </div>
                 <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label for="deliveryDate" class="block text-sm font-medium text-gray-700 mb-1">Delivery Date</label>
-                        <input type="date" id="deliveryDate" name="delivery_date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label for="quantityDelivered" class="block text-sm font-medium text-gray-700 mb-1">Quantity Delivered</label>
-                        <input type="number" id="quantityDelivered" name="quantity_delivered" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label for="quantityUsed" class="block text-sm font-medium text-gray-700 mb-1">Quantity Used</label>
-                        <input type="number" id="quantityUsed" name="quantity_used" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label for="unit" class="block text-sm font-medium text-gray-700 mb-1">Unit</label>
-                        <select id="unit" name="unit" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="bags">Bags</option>
-                            <option value="pieces">Pieces</option>
-                            <option value="kg">Kilograms</option>
-                            <option value="tons">Tons</option>
-                            <option value="liters">Liters</option>
-                            <option value="cu.m">Cubic Meters</option>
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Unit</label>
+                        <select id="unit" name="unit" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            <option value="bags">Bags</option><option value="pieces">Pieces</option><option value="kg">Kilograms</option><option value="tons">Tons</option><option value="liters">Liters</option><option value="cu.m">Cubic Meters</option>
                         </select>
                     </div>
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Low-stock alert at (remaining &le;)</label><input type="number" id="lowStock" name="low_stock_threshold" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="0 = off"></div>
                 </div>
-                <div class="mb-4">
-                    <label for="depletionDate" class="block text-sm font-medium text-gray-700 mb-1">Estimated Depletion Date</label>
-                    <input type="date" id="depletionDate" name="depletion_date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
+                <div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-1">Estimated Depletion Date</label><input type="date" id="depletionDate" name="depletion_date" class="w-full px-3 py-2 border border-gray-300 rounded-md"></div>
                 <div class="flex justify-end">
-                    <button type="button" id="cancelMaterial" class="mr-2 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">Cancel</button>
-                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Save Material</button>
+                    <button type="button" data-close class="mr-2 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Save</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Add Worker Modal -->
-    <div id="workerModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <!-- Worker Modal -->
+    <div id="workerModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-40">
         <div class="bg-white rounded-lg p-6 w-full max-w-md">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold">Add Worker</h3>
-                <button id="closeWorkerModal" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times"></i>
-                </button>
+                <h3 id="workerModalTitle" class="text-lg font-semibold">Add Worker</h3>
+                <button data-close class="text-gray-500 hover:text-gray-700"><i class="fas fa-times"></i></button>
             </div>
             <form id="workerForm">
+                <input type="hidden" id="workerId" name="id">
+                <div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label><input type="text" id="workerName" name="name" required class="w-full px-3 py-2 border border-gray-300 rounded-md"></div>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Worker Type</label>
+                        <select id="workerType" name="worker_type" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            <option value="fundi">Fundi (Skilled)</option><option value="casual">Casual Worker</option>
+                        </select>
+                    </div>
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Daily Rate (KSh)</label><input type="number" step="0.01" id="dailyRate" name="daily_rate" class="w-full px-3 py-2 border border-gray-300 rounded-md"></div>
+                </div>
+                <div class="flex justify-end">
+                    <button type="button" data-close class="mr-2 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-40">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="paymentModalTitle" class="text-lg font-semibold">Add Payment</h3>
+                <button data-close class="text-gray-500 hover:text-gray-700"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="paymentForm">
+                <input type="hidden" id="paymentId" name="id">
                 <div class="mb-4">
-                    <label for="workerName" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                    <input type="text" id="workerName" name="worker_name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Payment Type</label>
+                    <select id="paymentCategory" name="category" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        <option value="wage">Worker Wage</option>
+                        <option value="other">Other (item bought / extra work)</option>
+                    </select>
+                </div>
+                <div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-1">Date</label><input type="date" id="paymentDate" name="payment_date" required class="w-full px-3 py-2 border border-gray-300 rounded-md"></div>
+                <div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-1">Description</label><input type="text" id="paymentDescription" name="description" required class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="e.g. Cement for foundation, Overtime, Transport"></div>
+                <div id="wageFields" class="grid grid-cols-2 gap-4 mb-4">
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Worker Type</label>
+                        <select id="workerTypePayment" name="worker_type" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            <option value="">Non-Worker</option><option value="fundi">Fundi</option><option value="casual">Casual</option>
+                        </select>
+                    </div>
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Linked Worker</label>
+                        <select id="paymentWorker" name="worker_id" class="w-full px-3 py-2 border border-gray-300 rounded-md"></select>
+                    </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label for="workerType" class="block text-sm font-medium text-gray-700 mb-1">Worker Type</label>
-                        <select id="workerType" name="worker_type" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="fundi">Fundi (Skilled)</option>
-                            <option value="casual">Casual Worker</option>
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Amount (KSh)</label><input type="number" step="0.01" id="paymentAmount" name="amount" required class="w-full px-3 py-2 border border-gray-300 rounded-md"></div>
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                        <select id="paymentStatus" name="status" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            <option value="paid">Paid</option><option value="pending">Pending</option><option value="cancelled">Cancelled</option>
                         </select>
                     </div>
                 </div>
+                <div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-1">Recipient / Paid To</label><input type="text" id="paymentRecipient" name="recipient" required class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Worker name or supplier / what was bought"></div>
                 <div class="flex justify-end">
-                    <button type="button" id="cancelWorker" class="mr-2 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">Cancel</button>
-                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Save Worker</button>
+                    <button type="button" data-close class="mr-2 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Save</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Add Payment Modal -->
-    <div id="paymentModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <!-- Progress Modal -->
+    <div id="progressModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-40">
         <div class="bg-white rounded-lg p-6 w-full max-w-md">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold">Add Payment</h3>
-                <button id="closePaymentModal" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <form id="paymentForm">
-                <div class="mb-4">
-                    <label for="paymentDate" class="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                    <input type="date" id="paymentDate" name="payment_date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div class="mb-4">
-                    <label for="paymentDescription" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                    <input type="text" id="paymentDescription" name="payment_description" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div class="mb-4">
-                    <label for="workerTypePayment" class="block text-sm font-medium text-gray-700 mb-1">Worker Type</label>
-                    <select id="workerTypePayment" name="worker_type" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">Non-Worker</option>
-                        <option value="fundi">Fundi (Skilled)</option>
-                        <option value="casual">Casual Worker</option>
-                    </select>
-                </div>
-                <div class="mb-4">
-                    <label for="paymentAmount" class="block text-sm font-medium text-gray-700 mb-1">Amount (KSh)</label>
-                    <input type="number" step="0.01" id="paymentAmount" name="payment_amount" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div class="mb-4">
-                    <label for="paymentRecipient" class="block text-sm font-medium text-gray-700 mb-1">Recipient</label>
-                    <input type="text" id="paymentRecipient" name="payment_recipient" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div class="mb-4">
-                    <label for="paymentStatus" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                    <select id="paymentStatus" name="payment_status" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="paid">Paid</option>
-                        <option value="pending">Pending</option>
-                        <option value="cancelled">Cancelled</option>
-                    </select>
-                </div>
-                <div class="flex justify-end">
-                    <button type="button" id="cancelPayment" class="mr-2 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">Cancel</button>
-                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Save Payment</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Add Progress Modal -->
-    <div id="progressModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
-        <div class="bg-white rounded-lg p-6 w-full max-w-md">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold">Update Progress</h3>
-                <button id="closeProgressModal" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times"></i>
-                </button>
+                <h3 id="progressModalTitle" class="text-lg font-semibold">Update Progress</h3>
+                <button data-close class="text-gray-500 hover:text-gray-700"><i class="fas fa-times"></i></button>
             </div>
             <form id="progressForm">
-                <div class="mb-4">
-                    <label for="progressDate" class="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                    <input type="date" id="progressDate" name="progress_date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div class="mb-4">
-                    <label for="progressMilestone" class="block text-sm font-medium text-gray-700 mb-1">Milestone</label>
-                    <select id="progressMilestone" name="progress_milestone" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="foundation">Foundation</option>
-                        <option value="structure">Structure</option>
-                        <option value="roofing">Roofing</option>
-                        <option value="finishing">Finishing</option>
+                <input type="hidden" id="progressId" name="id">
+                <div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-1">Date</label><input type="date" id="progressDate" name="progress_date" required class="w-full px-3 py-2 border border-gray-300 rounded-md"></div>
+                <div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-1">Milestone</label>
+                    <select id="progressMilestone" name="milestone" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        <option value="foundation">Foundation</option><option value="structure">Structure</option><option value="roofing">Roofing</option><option value="finishing">Finishing</option>
                     </select>
                 </div>
                 <div class="mb-4">
-                    <label for="progressPercentage" class="block text-sm font-medium text-gray-700 mb-1">Completion Percentage</label>
-                    <input type="range" id="progressPercentage" name="progress_percentage" min="0" max="100" step="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-                    <div class="flex justify-between text-xs text-gray-500">
-                        <span>0%</span>
-                        <span>25%</span>
-                        <span>50%</span>
-                        <span>75%</span>
-                        <span>100%</span>
-                    </div>
-                    <div class="text-center mt-1">
-                        <span id="percentageValue" class="font-medium">50%</span>
-                    </div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Completion %</label>
+                    <input type="range" id="progressPercentage" name="percentage" min="0" max="100" step="1" value="50" class="w-full">
+                    <div class="text-center mt-1"><span id="percentageValue" class="font-medium">50%</span></div>
                 </div>
-                <div class="mb-4">
-                    <label for="progressNotes" class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
-                    <textarea id="progressNotes" name="progress_notes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-                </div>
+                <div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-1">Notes</label><textarea id="progressNotes" name="notes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md"></textarea></div>
                 <div class="flex justify-end">
-                    <button type="button" id="cancelProgress" class="mr-2 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">Cancel</button>
-                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Update Progress</button>
+                    <button type="button" data-close class="mr-2 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Save</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Add Weather Modal -->
-    <div id="weatherModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <!-- Log Usage Modal -->
+    <div id="usageModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-40">
         <div class="bg-white rounded-lg p-6 w-full max-w-md">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold">Update Weather</h3>
-                <button id="closeWeatherModal" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times"></i>
-                </button>
+                <h3 class="text-lg font-semibold">Log Daily Material Usage</h3>
+                <button data-close class="text-gray-500 hover:text-gray-700"><i class="fas fa-times"></i></button>
             </div>
-            <form id="weatherForm">
-                <div class="mb-4">
-                    <label for="weatherDate" class="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                    <input type="date" id="weatherDate" name="weather_date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <form id="usageForm">
+                <div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-1">Material</label>
+                    <select id="usageMaterial" name="material_id" required class="w-full px-3 py-2 border border-gray-300 rounded-md"></select>
                 </div>
-                <div class="mb-4">
-                    <label for="weatherCondition" class="block text-sm font-medium text-gray-700 mb-1">Weather Condition</label>
-                    <select id="weatherCondition" name="weather_condition" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="sunny">Sunny</option>
-                        <option value="partly_cloudy">Partly Cloudy</option>
-                        <option value="cloudy">Cloudy</option>
-                        <option value="rainy">Rainy</option>
-                        <option value="stormy">Stormy</option>
-                        <option value="windy">Windy</option>
-                    </select>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Date</label><input type="date" id="usageDate" name="use_date" required class="w-full px-3 py-2 border border-gray-300 rounded-md"></div>
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Quantity Used</label><input type="number" step="0.01" id="usageQty" name="quantity_used" required class="w-full px-3 py-2 border border-gray-300 rounded-md"></div>
                 </div>
-                <div class="mb-4">
-                    <label for="weatherTemperature" class="block text-sm font-medium text-gray-700 mb-1">Temperature (°C)</label>
-                    <input type="number" id="weatherTemperature" name="weather_temperature" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div class="mb-4">
-                    <label for="weatherEffect" class="block text-sm font-medium text-gray-700 mb-1">Effect on Work</label>
-                    <textarea id="weatherEffect" name="weather_effect" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-                </div>
+                <div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-1">Note (optional)</label><input type="text" id="usageNote" name="note" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="e.g. Foundation slab"></div>
                 <div class="flex justify-end">
-                    <button type="button" id="cancelWeather" class="mr-2 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">Cancel</button>
-                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Update Weather</button>
+                    <button type="button" data-close class="mr-2 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Log Usage</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Weekly Report Modal -->
+    <div id="reportModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-40">
+        <div class="bg-white rounded-lg p-6 w-full max-w-3xl max-h-[90vh] overflow-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">Weekly Materials Report</h3>
+                <button data-close class="text-gray-500 hover:text-gray-700"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="reportContent" class="text-sm"></div>
+            <div class="flex justify-end mt-4">
+                <button type="button" data-close class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Low-Stock Warning Card -->
+    <div id="lowStockCard" class="fixed bottom-4 right-4 z-50 hidden w-72 bg-white rounded-lg shadow-2xl border-l-4 border-red-500">
+        <div class="flex items-center justify-between px-4 py-2 bg-red-50 rounded-t-lg">
+            <div class="flex items-center text-red-700 font-semibold text-sm"><i class="fas fa-exclamation-triangle mr-2"></i>Low Stock Alert</div>
+            <button id="lowStockClose" class="text-red-400 hover:text-red-700"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="lowStockList" class="p-3 space-y-1 max-h-60 overflow-auto"></div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-sm">
+            <h3 id="confirmTitle" class="text-lg font-semibold mb-2">Confirm</h3>
+            <p id="confirmMessage" class="text-sm text-gray-600 mb-6">Are you sure?</p>
+            <div class="flex justify-end gap-2">
+                <button id="confirmCancelBtn" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">Cancel</button>
+                <button id="confirmActionBtn" class="px-4 py-2 text-white rounded-md bg-blue-500 hover:opacity-90">Confirm</button>
+            </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        $(document).ready(function() {
-            // Toggle sidebar for mobile
-            $('#sidebarToggle').click(function() {
-                $('.sidebar').toggleClass('sidebar-collapsed sidebar-expanded');
-                $('.content').toggleClass('content-expanded');
-            });
-
-            // Sidebar navigation
-            $('.nav-item').click(function() {
-                const section = $(this).data('section');
-                $('.main-section').removeClass('active');
-                $(`#${section}-section`).addClass('active');
-
-                // Update header title
-                const titleMap = {
-                    'dashboard': 'Dashboard',
-                    'materials': 'Materials Inventory',
-                    'workers': 'Workers',
-                    'payments': 'Payment Records',
-                    'progress': 'Project Progress',
-                    'weather': 'Weather Conditions',
-                    'settings': 'Settings',
-                    'team': 'Site Team'
-                };
-                $('header h1').text(`Construction Site - ${titleMap[section]}`);
-
-                // Close sidebar on mobile after selection
-                if ($(window).width() <= 768) {
-                    $('.sidebar').removeClass('sidebar-expanded').addClass('sidebar-collapsed');
-                    $('.content').addClass('content-expanded');
-                }
-            });
-
-            // Calculate worker payments based on attendance
-            function updatePayments() {
-                const workers = [
-                    { name: 'John Kamau', type: 'Fundi', days: 0 },
-                    { name: 'Peter Mwangi', type: 'Fundi', days: 0 },
-                    { name: 'James Omondi', type: 'Casual', days: 0 }
-                ];
-
-                $('.attendance').each(function() {
-                    if ($(this).is(':checked')) {
-                        const worker = $(this).data('worker');
-                        const workerObj = workers.find(w => w.name.replace(' ', '_').toLowerCase() === worker);
-                        if (workerObj) {
-                            workerObj.days++;
-                        }
-                    }
-                });
-
-                workers.forEach(worker => {
-                    const rate = worker.type === 'Fundi' ? 1500 : 700;
-                    const amount = worker.days * rate;
-                    const existingRow = $(`#payments-section tbody tr:contains('${worker.name}')`);
-                    if (existingRow.length) {
-                        existingRow.find('td:eq(3)').text(`KSh ${amount.toLocaleString()}`);
-                    } else {
-                        const row = `
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">01/08/2023</td>
-                                <td class="px-6 py-4 whitespace-nowrap">Worker Wages</td>
-                                <td class="px-6 py-4 whitespace-nowrap">${worker.type}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">KSh ${amount.toLocaleString()}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">${worker.name}</td>
-                                <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">Pending</span></td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <button class="text-blue-500 hover:text-blue-700 mr-2"><i class="fas fa-receipt"></i></button>
-                                    <button class="text-blue-500 hover:text-blue-700"><i class="fas fa-edit"></i></button>
-                                </td>
-                            </tr>`;
-                        $('#payments-section tbody').append(row);
-                    }
-                });
-            }
-
-            // Update payments when attendance changes
-            $('.attendance').change(function() {
-                updatePayments();
-            });
-
-            // Initial payment calculation
-            updatePayments();
-
-            // Material Modal
-            $('#addMaterialBtn').click(function() {
-                $('#materialModal').removeClass('hidden');
-            });
-
-            $('#closeMaterialModal, #cancelMaterial').click(function() {
-                $('#materialModal').addClass('hidden');
-            });
-
-            // Worker Modal
-            $('#addWorkerBtn').click(function() {
-                $('#workerModal').removeClass('hidden');
-            });
-
-            $('#closeWorkerModal, #cancelWorker').click(function() {
-                $('#workerModal').addClass('hidden');
-            });
-
-            // Payment Modal
-            $('#addPaymentBtn').click(function() {
-                $('#paymentModal').removeClass('hidden');
-            });
-
-            $('#closePaymentModal, #cancelPayment').click(function() {
-                $('#paymentModal').addClass('hidden');
-            });
-
-            // Progress Modal
-            $('#addProgressBtn').click(function() {
-                $('#progressModal').removeClass('hidden');
-            });
-
-            $('#closeProgressModal, #cancelProgress').click(function() {
-                $('#progressModal').addClass('hidden');
-            });
-
-            // Progress percentage slider
-            $('#progressPercentage').on('input', function() {
-                $('#percentageValue').text($(this).val() + '%');
-            });
-
-            // Weather Modal
-            $('#addWeatherBtn').click(function() {
-                $('#weatherModal').removeClass('hidden');
-            });
-
-            $('#closeWeatherModal, #cancelWeather').click(function() {
-                $('#weatherModal').addClass('hidden');
-            });
-
-            // Expenditure Chart
-            const ctx1 = document.getElementById('expenditureChart').getContext('2d');
-            const expenditureChart = new Chart(ctx1, {
-                type: 'bar',
-                data: {
-                    labels: ['Materials', 'Labor', 'Equipment', 'Permits', 'Misc'],
-                    datasets: [{
-                        label: 'Weekly Expenditure (KSh)',
-                        data: [812500, 525000, 150000, 37500, 31250],
-                        backgroundColor: [
-                            'rgba(54, 162, 235, 0.7)',
-                            'rgba(255, 99, 132, 0.7)',
-                            'rgba(255, 206, 86, 0.7)',
-                            'rgba(75, 192, 192, 0.7)',
-                            'rgba(153, 102, 255, 0.7)'
-                        ],
-                        borderColor: [
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 99, 132, 1)',
-                            'rgba(255, 206, 86, 1)',
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(153, 102, 255, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-
-            // Progress Over Time Chart
-            const ctx2 = document.getElementById('progressChart').getContext('2d');
-            const progressChart = new Chart(ctx2, {
-                type: 'line',
-                data: {
-                    labels: ['01/08', '02/08', '03/08', '04/08', '05/08'],
-                    datasets: [{
-                        label: 'Overall Progress (%)',
-                        data: [20, 25, 30, 35, 42],
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 100
-                        }
-                    }
-                }
-            });
-
-            // Milestone Distribution Chart
-            const ctx3 = document.getElementById('milestoneChart').getContext('2d');
-            const milestoneChart = new Chart(ctx3, {
-                type: 'pie',
-                data: {
-                    labels: ['Foundation', 'Structure', 'Roofing', 'Finishing'],
-                    datasets: [{
-                        label: 'Milestone Distribution',
-                        data: [100, 65, 15, 0],
-                        backgroundColor: [
-                            'rgba(75, 192, 192, 0.7)',
-                            'rgba(54, 162, 235, 0.7)',
-                            'rgba(255, 206, 86, 0.7)',
-                            'rgba(153, 102, 255, 0.7)'
-                        ],
-                        borderColor: [
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 206, 86, 1)',
-                            'rgba(153, 102, 255, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            });
-
-            // Form submissions (would be handled by PHP in backend)
-            $('#materialForm').submit(function(e) {
-                e.preventDefault();
-                alert('Material data would be saved to database via PHP');
-                $('#materialModal').addClass('hidden');
-                this.reset();
-            });
-
-            $('#workerForm').submit(function(e) {
-                e.preventDefault();
-                alert('Worker data would be saved to database via PHP');
-                $('#workerModal').addClass('hidden');
-                this.reset();
-            });
-
-            $('#paymentForm').submit(function(e) {
-                e.preventDefault();
-                alert('Payment data would be saved to database via PHP');
-                $('#paymentModal').addClass('hidden');
-                this.reset();
-            });
-
-            $('#progressForm').submit(function(e) {
-                e.preventDefault();
-                alert('Progress data would be saved to database via PHP');
-                $('#progressModal').addClass('hidden');
-                this.reset();
-            });
-
-            $('#weatherForm').submit(function(e) {
-                e.preventDefault();
-                alert('Weather data would be saved to database via PHP');
-                $('#weatherModal').addClass('hidden');
-                this.reset();
-            });
-        });
-    </script>
+    <script src="js.js?v=8"></script>
 </body>
 </html>
