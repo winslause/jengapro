@@ -11,8 +11,8 @@ $id = isset($_GET['id']) ? (int)$_GET['id'] : null;
 // Field definitions per entity: columns that are writable
 $entities = [
     'materials' => [
-        'fields' => ['name','unit','quantity_delivered','quantity_used','delivery_date','depletion_date','low_stock_threshold'],
-        'types'  => ['name'=>'str','unit'=>'str','quantity_delivered'=>'int','quantity_used'=>'int','delivery_date'=>'date','depletion_date'=>'date','low_stock_threshold'=>'int'],
+        'fields' => ['name','unit','delivery_date','depletion_date','low_stock_threshold'],
+        'types'  => ['name'=>'str','unit'=>'str','delivery_date'=>'date','depletion_date'=>'date','low_stock_threshold'=>'int'],
     ],
     'workers' => [
         'fields' => ['name','worker_type','daily_rate'],
@@ -29,6 +29,10 @@ $entities = [
     'weather' => [
         'fields' => ['weather_date','condition','temperature','effect'],
         'types'  => ['weather_date'=>'date','condition'=>'str','temperature'=>'dec','effect'=>'str'],
+    ],
+    'units' => [
+        'fields' => ['name','symbol'],
+        'types'  => ['name'=>'str','symbol'=>'str'],
     ],
 ];
 
@@ -51,6 +55,21 @@ function castValue($value, $type) {
             return preg_match('/^\d{4}-\d{2}-\d{2}$/', $value) ? $value : date('Y-m-d', strtotime($value));
         default: return (string)$value;
     }
+}
+
+// Record a material delivery (addition) and keep the running total in sync.
+// $replaceAll=true means this is the only delivery for the material (edit scenario
+// where quantity_delivered is the authoritative total for its delivery date).
+function recordMaterialAddition($pdo, $materialId, $qty, $date, $replaceAll = false) {
+    if ($qty <= 0) return;
+    $date = $date ?: date('Y-m-d');
+    if ($replaceAll) {
+        $pdo->prepare("DELETE FROM material_additions WHERE material_id = ?")->execute([$materialId]);
+    }
+    $pdo->prepare("INSERT INTO material_additions (material_id, add_date, quantity_added) VALUES (?, ?, ?)")
+        ->execute([$materialId, $date, $qty]);
+    $pdo->prepare("UPDATE materials SET quantity_delivered = (SELECT COALESCE(SUM(quantity_added),0) FROM material_additions WHERE material_id = ?) WHERE id = ?")
+        ->execute([$materialId, $materialId]);
 }
 
 // GET (list or single)
@@ -80,6 +99,14 @@ if ($method === 'POST') {
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
     $newId = $pdo->lastInsertId();
+
+    // For materials: the "Qty Delivered (Added)" becomes the first delivery record.
+    if ($entity === 'materials') {
+        $qty = (float)($data['quantity_delivered'] ?? 0);
+        $date = $data['delivery_date'] ?? null;
+        if ($qty > 0) recordMaterialAddition($pdo, $newId, $qty, $date, true);
+    }
+
     apiResponse(true, ucfirst($entity) . ' added successfully.', ['id' => $newId]);
 }
 
@@ -99,6 +126,15 @@ if ($method === 'PUT') {
     $sql = "UPDATE `$entity` SET " . implode(', ', $sets) . " WHERE id = ?";
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
+
+    // For materials: if quantity_delivered was provided, append it as a new delivery
+    // (adding more stock) on the given date, increasing the running total.
+    if ($entity === 'materials' && array_key_exists('quantity_delivered', $data)) {
+        $qty = (float)$data['quantity_delivered'];
+        $date = $data['delivery_date'] ?? null;
+        recordMaterialAddition($pdo, $id, $qty, $date, false);
+    }
+
     apiResponse(true, ucfirst($entity) . ' updated successfully.');
 }
 

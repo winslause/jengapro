@@ -30,8 +30,9 @@ function showToast(message, type = 'success') {
 }
 
 // ---------- AJAX helper ----------
-async function api(entity, method = 'GET', data = null, id = null) {
+async function api(entity, method = 'GET', data = null, id = null, action = null) {
     let url = `api/index.php?entity=${entity}`;
+    if (action) url += `&action=${action}`;
     if (id) url += `&id=${id}`;
     const opts = { method, headers: { 'Content-Type': 'application/json' } };
     if (data && (method === 'POST' || method === 'PUT')) opts.body = JSON.stringify(data);
@@ -105,32 +106,55 @@ function statusBadge(status) {
 // ================= MATERIALS =================
 async function loadMaterials() {
     try {
-        const out = await api('materials');
+        const out = await customApi('api/materials.php?action=summary');
+        const rows = out.materials || [];
         const tbody = $('#materialsTableBody');
-        if (!out.data.length) {
-            tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">No materials found.</td></tr>`;
+        if (!rows.length) {
+            tbody.innerHTML = `<tr><td colspan="8" class="px-6 py-4 text-center text-gray-500">No materials found.</td></tr>`;
         } else {
-            tbody.innerHTML = out.data.map(m => {
-                const remaining = (m.quantity_delivered || 0) - (m.quantity_used || 0);
+            tbody.innerHTML = rows.map(m => {
+                const added = m.added_total || 0;
+                const used = m.used_total || 0;
+                const remaining = m.remaining ?? (added - used);
+                const lowCls = m.is_low ? 'text-red-600 font-bold' : 'text-gray-800';
                 return `<tr data-id="${m.id}">
-                    <td class="px-6 py-4 whitespace-nowrap">${esc(m.name)}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">${m.quantity_delivered} (${esc(m.delivery_date || '-')})</td>
-                    <td class="px-6 py-4 whitespace-nowrap">${m.quantity_used}</td>
-                    <td class="px-6 py-4 whitespace-nowrap font-semibold">${remaining}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">${esc(m.depletion_date || '-')}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${esc(m.name)} <span class="text-gray-400 text-xs">(${esc(m.unit)})</span></td>
+                    <td class="px-6 py-4 whitespace-nowrap">${added} ${m.added_week ? `<span class="text-xs text-green-600">(+${m.added_week} wk)</span>` : ''}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${used}</td>
+                    <td class="px-6 py-4 whitespace-nowrap font-semibold">${m.used_today || 0}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${m.used_week || 0}</td>
+                    <td class="px-6 py-4 whitespace-nowrap ${lowCls}">${remaining}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${esc(m.last_added_date || m.delivery_date || '-')}</td>
                     <td class="px-6 py-4 whitespace-nowrap">
+                        <button class="text-indigo-500 hover:text-indigo-700 mr-2" data-usage="${m.id}" title="Log usage"><i class="fas fa-clipboard-list"></i></button>
                         <button class="text-blue-500 hover:text-blue-700 mr-2" data-edit="${m.id}"><i class="fas fa-edit"></i></button>
                         <button class="text-red-500 hover:text-red-700" data-delete="${m.id}"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>`;
             }).join('');
         }
+        renderLowStockCard(out.low_stock || []);
     } catch (e) { showToast(e.message, 'error'); }
+}
+
+// Floating low-stock warning card
+function renderLowStockCard(low) {
+    const card = $('#lowStockCard');
+    const list = $('#lowStockList');
+    if (!low.length) { card.classList.add('hidden'); return; }
+    list.innerHTML = low.map(l => `
+        <div class="flex justify-between items-center text-sm">
+            <span class="text-gray-700 truncate mr-2">${esc(l.name)}</span>
+            <span class="text-red-600 font-bold whitespace-nowrap">${l.remaining} ${esc(l.unit)}</span>
+        </div>`).join('');
+    card.classList.remove('hidden');
 }
 
 async function saveMaterial(e) {
     e.preventDefault();
     const fd = Object.fromEntries(new FormData(e.target).entries());
+    // "Qty Delivered (Added)" is the amount added now.
+    fd.quantity_delivered = parseFloat(fd.quantity_delivered || 0);
     const id = $('#materialId').value;
     try {
         if (id) {
@@ -143,6 +167,7 @@ async function saveMaterial(e) {
         closeModal('materialModal');
         e.target.reset();
         $('#materialId').value = '';
+        $('#qtyLabel').textContent = 'Qty Added';
         $('#materialModalTitle').textContent = 'Add Material';
         loadMaterials(); loadDashboard();
     } catch (err) { showToast(err.message, 'error'); }
@@ -155,12 +180,93 @@ async function editMaterial(id) {
         $('#materialId').value = m.id;
         $('#materialName').value = m.name;
         $('#deliveryDate').value = m.delivery_date || '';
-        $('#quantityDelivered').value = m.quantity_delivered;
-        $('#quantityUsed').value = m.quantity_used;
+        $('#quantityDelivered').value = '';
         $('#unit').value = m.unit;
-        $('#depletionDate').value = m.depletion_date || '';
+        $('#lowStock').value = m.low_stock_threshold || '';
+        $('#qtyLabel').textContent = 'Qty to Add (more)';
         $('#materialModalTitle').textContent = 'Edit Material';
         openModal('materialModal');
+    } catch (e) { showToast(e.message, 'error'); }
+}
+
+// ---- Log daily usage ----
+async function openUsageModal() {
+    try {
+        const out = await customApi('api/materials.php?action=list');
+        const opts = out.materials.map(m => `<option value="${m.id}">${esc(m.name)} (${esc(m.unit)})</option>`).join('');
+        $('#usageMaterial').innerHTML = opts;
+        $('#usageDate').value = new Date().toISOString().slice(0, 10);
+        $('#usageQty').value = '';
+        $('#usageNote').value = '';
+        openModal('usageModal');
+    } catch (e) { showToast(e.message, 'error'); }
+}
+
+async function saveUsage(e) {
+    e.preventDefault();
+    const fd = Object.fromEntries(new FormData(e.target).entries());
+    try {
+        await customApi('api/materials.php?action=usage', 'POST', {
+            material_id: parseInt(fd.material_id, 10),
+            use_date: fd.use_date,
+            quantity_used: parseFloat(fd.quantity_used),
+            note: fd.note || ''
+        });
+        showToast('Usage logged.', 'success');
+        closeModal('usageModal');
+        loadMaterials(); loadDashboard();
+    } catch (err) { showToast(err.message, 'error'); }
+}
+
+// ---- Weekly report ----
+async function generateWeeklyReport() {
+    try {
+        const out = await customApi('api/materials.php?action=report');
+        const ws = out.week_start, we = out.week_end;
+        const days = out.days || [];
+        const mats = out.materials || [];
+        const dayList = days.length ? days.map(d => d.slice(5)).join(', ') : 'None';
+
+        const perCatUsed = Object.entries(out.per_category_used || {});
+        const perCatAdded = Object.entries(out.per_category_added || {});
+
+        const usedRows = mats.map(m => `
+            <tr>
+                <td class="px-3 py-1.5 border">${esc(m.name)}</td>
+                <td class="px-3 py-1.5 border text-right">${m.added_week || 0}</td>
+                <td class="px-3 py-1.5 border text-right">${m.used_week || 0}</td>
+                <td class="px-3 py-1.5 border text-right">${m.remaining || 0}</td>
+            </tr>`).join('');
+
+        const catUsedRows = perCatUsed.length
+            ? perCatUsed.map(([c, v]) => `<div class="flex justify-between"><span>${esc(c)}</span><span class="font-semibold">${v}</span></div>`).join('')
+            : '<p class="text-gray-400">No usage this week.</p>';
+        const catAddedRows = perCatAdded.length
+            ? perCatAdded.map(([c, v]) => `<div class="flex justify-between"><span>${esc(c)}</span><span class="font-semibold">${v}</span></div>`).join('')
+            : '<p class="text-gray-400">No additions this week.</p>';
+
+        const generatedAt = new Date().toLocaleString();
+        $('#reportContent').innerHTML = `
+            <div class="mb-4 p-3 bg-gray-50 rounded">
+                <p class="font-semibold">Week: ${ws} → ${we}</p>
+                <p class="text-xs text-gray-500">Report generated: ${generatedAt}</p>
+                <p class="text-xs text-gray-500">Days with recorded usage (${days.length}): ${dayList}</p>
+            </div>
+            <h3 class="font-semibold mb-2">Total Used per Category (this week)</h3>
+            <div class="mb-4 space-y-1">${catUsedRows}</div>
+            <h3 class="font-semibold mb-2">Total Added per Category (this week)</h3>
+            <div class="mb-4 space-y-1">${catAddedRows}</div>
+            <h3 class="font-semibold mb-2">Per Material</h3>
+            <table class="w-full border-collapse text-sm mb-2">
+                <thead><tr class="bg-gray-100">
+                    <th class="px-3 py-1.5 border text-left">Material</th>
+                    <th class="px-3 py-1.5 border text-right">Added (wk)</th>
+                    <th class="px-3 py-1.5 border text-right">Used (wk)</th>
+                    <th class="px-3 py-1.5 border text-right">Remaining</th>
+                </tr></thead>
+                <tbody>${usedRows}</tbody>
+            </table>`;
+        openModal('reportModal');
     } catch (e) { showToast(e.message, 'error'); }
 }
 
@@ -807,18 +913,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     bindModal($('#addWorkerBtn'), '#workerModal', '#workerModalTitle', 'Add Worker'); closeBtns('#workerModal');
     bindModal($('#addPaymentBtn'), '#paymentModal', '#paymentModalTitle', 'Add Payment'); closeBtns('#paymentModal');
     bindModal($('#addProgressBtn'), '#progressModal', '#progressModalTitle', 'Update Progress'); closeBtns('#progressModal');
+    closeBtns('#usageModal');
+    closeBtns('#reportModal');
 
     // Form submits
     $('#materialForm').addEventListener('submit', saveMaterial);
     $('#workerForm').addEventListener('submit', saveWorker);
     $('#paymentForm').addEventListener('submit', savePayment);
     $('#progressForm').addEventListener('submit', saveProgress);
+    $('#usageForm').addEventListener('submit', saveUsage);
 
     // Progress slider
     $('#progressPercentage').addEventListener('input', e => $('#percentageValue').textContent = e.target.value + '%');
 
     // Attendance / weekly wages
     $('#generateWagesBtn').addEventListener('click', payWorkersByAttendance);
+
+    // Materials: weekly report + low stock card close
+    $('#weeklyReportBtn').addEventListener('click', generateWeeklyReport);
+    $('#lowStockClose').addEventListener('click', () => $('#lowStockCard').classList.add('hidden'));
 
     // Payment category toggle shows/hides worker linking
     $('#paymentCategory').addEventListener('change', toggleWageFields);
@@ -841,9 +954,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Event delegation for edit/delete/confirm buttons in tables
     document.body.addEventListener('click', (e) => {
-        const t = e.target.closest('[data-edit],[data-delete],[data-confirm]');
+        const t = e.target.closest('[data-edit],[data-delete],[data-confirm],[data-usage]');
         if (!t) return;
         if (t.dataset.confirm) { confirmWage(t.dataset.confirm); return; }
+        if (t.dataset.usage) { openUsageModal(); return; }
         const id = t.dataset.edit || t.dataset.delete;
         const section = t.closest('.main-section').id.replace('-section', '');
         if (t.dataset.edit) {
