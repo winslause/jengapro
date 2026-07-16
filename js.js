@@ -127,8 +127,8 @@ async function loadMaterials() {
                     <td class="px-6 py-4 whitespace-nowrap">${esc(m.last_added_date || m.delivery_date || '-')}</td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <button class="text-indigo-500 hover:text-indigo-700 mr-2" data-usage="${m.id}" title="Log usage"><i class="fas fa-clipboard-list"></i></button>
-                        <button class="text-blue-500 hover:text-blue-700 mr-2" data-edit="${m.id}"><i class="fas fa-edit"></i></button>
-                        <button class="text-red-500 hover:text-red-700" data-delete="${m.id}"><i class="fas fa-trash"></i></button>
+                        <button class="text-green-500 hover:text-green-700 mr-2" data-add="${m.id}" title="Add quantity"><i class="fas fa-plus"></i></button>
+                        <button class="text-red-500 hover:text-red-700" data-delete="${m.id}" title="Delete"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>`;
             }).join('');
@@ -158,35 +158,49 @@ async function saveMaterial(e) {
     const id = $('#materialId').value;
     try {
         if (id) {
-            await api('materials', 'PUT', fd, id);
-            showToast('Material updated successfully.', 'success');
+            // Add-only mode: only append quantity on the chosen added date.
+            await api('materials', 'PUT', { quantity_delivered: fd.quantity_delivered, delivery_date: fd.delivery_date }, id);
+            showToast('Quantity added successfully.', 'success');
         } else {
-            await api('materials', 'POST', fd);
-            showToast('Material added successfully.', 'success');
+            if (!$('#materialName').disabled) {
+                await api('materials', 'POST', fd);
+                showToast('Material added successfully.', 'success');
+            }
         }
         closeModal('materialModal');
         e.target.reset();
-        $('#materialId').value = '';
-        $('#qtyLabel').textContent = 'Qty Added';
-        $('#materialModalTitle').textContent = 'Add Material';
+        resetMaterialModal();
         loadMaterials(); loadDashboard();
     } catch (err) { showToast(err.message, 'error'); }
 }
 
-async function editMaterial(id) {
+async function addToMaterial(id) {
     try {
         const out = await api('materials', 'GET', null, id);
         const m = out.data;
         $('#materialId').value = m.id;
         $('#materialName').value = m.name;
-        $('#deliveryDate').value = m.delivery_date || '';
+        $('#materialName').disabled = true;
+        $('#deliveryDate').value = new Date().toISOString().slice(0, 10);
         $('#quantityDelivered').value = '';
         $('#unit').value = m.unit;
+        $('#unit').disabled = true;
         $('#lowStock').value = m.low_stock_threshold || '';
-        $('#qtyLabel').textContent = 'Qty to Add (more)';
-        $('#materialModalTitle').textContent = 'Edit Material';
+        $('#lowStock').disabled = true;
+        $('#qtyLabel').textContent = 'Qty to Add';
+        $('#materialModalTitle').textContent = 'Add to ' + m.name;
         openModal('materialModal');
     } catch (e) { showToast(e.message, 'error'); }
+}
+
+// Reset the material modal back to "Add" mode (re-enables fields)
+function resetMaterialModal() {
+    $('#materialId').value = '';
+    $('#materialName').disabled = false;
+    $('#unit').disabled = false;
+    $('#lowStock').disabled = false;
+    $('#qtyLabel').textContent = 'Qty Added';
+    $('#materialModalTitle').textContent = 'Add Material';
 }
 
 // ---- Log daily usage ----
@@ -277,6 +291,84 @@ async function deleteMaterial(id) {
         await api('materials', 'DELETE', null, id);
         showToast('Material deleted.', 'success');
         loadMaterials(); loadDashboard();
+    } catch (e) { showToast(e.message, 'error'); }
+}
+
+// ---- Units management ----
+async function loadUnits() {
+    const out = await api('units');
+    const list = $('#unitsList');
+    if (!out.data.length) {
+        list.innerHTML = `<p class="text-sm text-gray-500">No units yet.</p>`;
+    } else {
+        list.innerHTML = out.data.map(u => `
+            <div class="flex items-center justify-between py-2 border-b border-gray-100" data-unit="${u.id}">
+                <div>
+                    <span class="font-medium text-gray-800">${esc(u.name)}</span>
+                    ${u.symbol ? `<span class="text-xs text-gray-400 ml-2">(${esc(u.symbol)})</span>` : ''}
+                </div>
+                <div class="flex items-center gap-2">
+                    <button class="text-blue-500 hover:text-blue-700" data-edit-unit="${u.id}" title="Edit"><i class="fas fa-edit"></i></button>
+                    <button class="text-red-500 hover:text-red-700" data-delete-unit="${u.id}" title="Remove"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>`).join('');
+    }
+    // Sync the Unit select in the material modal
+    const opts = `<option value="">-- Select Unit --</option>` +
+        out.data.map(u => `<option value="${esc(u.name)}">${esc(u.name)}</option>`).join('');
+    const sel = $('#unit');
+    if (sel) sel.innerHTML = opts;
+}
+
+async function openUnitsModal() {
+    $('#unitId').value = '';
+    $('#unitName').value = '';
+    $('#unitSymbol').value = '';
+    $('#unitModalTitle').textContent = 'Manage Units';
+    $('#unitSaveBtn').textContent = 'Add Unit';
+    await loadUnits();
+    openModal('unitsModal');
+}
+
+async function saveUnit(e) {
+    e.preventDefault();
+    const fd = Object.fromEntries(new FormData(e.target).entries());
+    const id = $('#unitId').value;
+    try {
+        if (id) {
+            await api('units', 'PUT', fd, id);
+            showToast('Unit updated.', 'success');
+        } else {
+            await api('units', 'POST', fd);
+            showToast('Unit added.', 'success');
+        }
+        $('#unitId').value = '';
+        $('#unitName').value = '';
+        $('#unitSymbol').value = '';
+        $('#unitSaveBtn').textContent = 'Add Unit';
+        loadUnits();
+    } catch (err) { showToast(err.message, 'error'); }
+}
+
+async function editUnit(id) {
+    try {
+        const out = await api('units', 'GET', null, id);
+        const u = out.data;
+        $('#unitId').value = u.id;
+        $('#unitName').value = u.name;
+        $('#unitSymbol').value = u.symbol || '';
+        $('#unitSaveBtn').textContent = 'Save Changes';
+        $('#unitName').focus();
+    } catch (e) { showToast(e.message, 'error'); }
+}
+
+async function deleteUnit(id) {
+    const ok = await confirmDialog('Remove Unit', 'Remove this unit? Materials already using it are unaffected.');
+    if (!ok) return;
+    try {
+        await api('units', 'DELETE', null, id);
+        showToast('Unit removed.', 'success');
+        loadUnits();
     } catch (e) { showToast(e.message, 'error'); }
 }
 
@@ -909,12 +1001,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
     const closeBtns = (modalId) => $$('#' + normId(modalId) + ' [data-close]').forEach(b => b.addEventListener('click', () => closeModal(modalId)));
 
-    bindModal($('#addMaterialBtn'), '#materialModal', '#materialModalTitle', 'Add Material'); closeBtns('#materialModal');
+    const addMaterialBtn = $('#addMaterialBtn');
+    if (addMaterialBtn) addMaterialBtn.addEventListener('click', () => {
+        const form = $('#materialForm');
+        if (form) form.reset();
+        resetMaterialModal();
+        openModal('materialModal');
+    });
+    closeBtns('#materialModal');
     bindModal($('#addWorkerBtn'), '#workerModal', '#workerModalTitle', 'Add Worker'); closeBtns('#workerModal');
     bindModal($('#addPaymentBtn'), '#paymentModal', '#paymentModalTitle', 'Add Payment'); closeBtns('#paymentModal');
     bindModal($('#addProgressBtn'), '#progressModal', '#progressModalTitle', 'Update Progress'); closeBtns('#progressModal');
     closeBtns('#usageModal');
     closeBtns('#reportModal');
+    closeBtns('#unitsModal');
+
+    // Unit settings icon opens the units management modal
+    $('#unitSettingsBtn').addEventListener('click', openUnitsModal);
 
     // Form submits
     $('#materialForm').addEventListener('submit', saveMaterial);
@@ -922,6 +1025,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     $('#paymentForm').addEventListener('submit', savePayment);
     $('#progressForm').addEventListener('submit', saveProgress);
     $('#usageForm').addEventListener('submit', saveUsage);
+    $('#unitForm').addEventListener('submit', saveUnit);
 
     // Progress slider
     $('#progressPercentage').addEventListener('input', e => $('#percentageValue').textContent = e.target.value + '%');
@@ -952,19 +1056,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Live weather
     $('#liveWeatherBtn').addEventListener('click', fetchLiveWeather);
 
-    // Event delegation for edit/delete/confirm buttons in tables
+    // Event delegation for add/edit/delete/confirm buttons in tables
     document.body.addEventListener('click', (e) => {
-        const t = e.target.closest('[data-edit],[data-delete],[data-confirm],[data-usage]');
+        const t = e.target.closest('[data-add],[data-edit],[data-delete],[data-confirm],[data-usage]');
         if (!t) return;
         if (t.dataset.confirm) { confirmWage(t.dataset.confirm); return; }
         if (t.dataset.usage) { openUsageModal(); return; }
+        if (t.dataset.add) { addToMaterial(t.dataset.add); return; }
         const id = t.dataset.edit || t.dataset.delete;
         const section = t.closest('.main-section').id.replace('-section', '');
         if (t.dataset.edit) {
-            ({ materials: editMaterial, workers: editWorker, payments: editPayment, progress: editProgress }[section])(id);
+            ({ workers: editWorker, payments: editPayment, progress: editProgress }[section])(id);
         } else {
             ({ materials: deleteMaterial, workers: deleteWorker, payments: deletePayment, progress: deleteProgress }[section])(id);
         }
+    });
+
+    // Event delegation for unit management buttons
+    document.body.addEventListener('click', (e) => {
+        const tu = e.target.closest('[data-edit-unit],[data-delete-unit]');
+        if (!tu) return;
+        if (tu.dataset.editUnit) editUnit(tu.dataset.editUnit);
+        else if (tu.dataset.deleteUnit) deleteUnit(tu.dataset.deleteUnit);
     });
 
     // Initial loads
