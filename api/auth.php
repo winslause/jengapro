@@ -53,6 +53,33 @@ if ($action === 'register') {
     apiResponse(true, 'Account created. You can now log in.');
 }
 
+if ($action === 'changePassword') {
+    requireLogin();
+    $data = getJsonInput();
+    $old = $data['old_password'] ?? '';
+    $new = $data['new_password'] ?? '';
+
+    if (!$old || !$new) {
+        apiResponse(false, 'Both current and new password are required.');
+    }
+    if (strlen($new) < 6) {
+        apiResponse(false, 'New password must be at least 6 characters.');
+    }
+
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
+    $stmt->execute([$_SESSION['user_id']]);
+    $user = $stmt->fetch();
+
+    if (!$user || !password_verify($old, $user['password'])) {
+        apiResponse(false, 'Current password is incorrect.');
+    }
+
+    $hash = password_hash($new, PASSWORD_DEFAULT);
+    $pdo->prepare("UPDATE users SET password = ? WHERE id = ?")->execute([$hash, $user['id']]);
+
+    apiResponse(true, 'Password changed successfully.');
+}
+
 if ($action === 'logout') {
     session_destroy();
     apiResponse(true, 'Logged out.');

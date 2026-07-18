@@ -770,6 +770,19 @@ async function deletePayment(id) {
     catch (e) { showToast(e.message, 'error'); }
 }
 
+async function changePassword(e) {
+    e.preventDefault();
+    const oldP = $('#oldPassword').value;
+    const newP = $('#newPassword').value;
+    const conf = $('#confirmPassword').value;
+    if (newP !== conf) { showToast('New passwords do not match.', 'error'); return; }
+    try {
+        await customApi('api/auth.php?action=changePassword', 'POST', { old_password: oldP, new_password: newP });
+        showToast('Password changed successfully.', 'success');
+        e.target.reset();
+    } catch (err) { showToast(err.message, 'error'); }
+}
+
 // Generate worker wage payments from the weekly attendance grid
 async function payWorkersByAttendance() {
     try {
@@ -1152,6 +1165,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     $('#progressForm').addEventListener('submit', saveProgress);
     $('#usageForm').addEventListener('submit', saveUsage);
     $('#unitForm').addEventListener('submit', saveUnit);
+    $('#changePasswordForm').addEventListener('submit', changePassword);
 
     // Progress slider
     $('#progressPercentage').addEventListener('input', e => $('#percentageValue').textContent = e.target.value + '%');

@@ -35,8 +35,8 @@ $stmt = $pdo->prepare("SELECT COALESCE(SUM(amount),0) AS total FROM payments WHE
 $stmt->execute();
 $stats['weekly_expenditure'] = (float)$stmt->fetch()['total'];
 
-// Total pending wage payments (unpaid wages only)
-$stmt = $pdo->prepare("SELECT COALESCE(SUM(amount),0) AS total FROM payments WHERE status = 'pending' AND (category = 'wage' OR category IS NULL)");
+// Total pending payments (all unpaid: wages + other)
+$stmt = $pdo->prepare("SELECT COALESCE(SUM(amount),0) AS total FROM payments WHERE status = 'pending'");
 $stmt->execute();
 $stats['pending_payments'] = (float)$stmt->fetch()['total'];
 
