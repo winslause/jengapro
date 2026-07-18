@@ -541,7 +541,10 @@ function weekStartStr(ref = new Date()) {
     d.setHours(0, 0, 0, 0);
     const dow = d.getDay(); // 0=Sun
     d.setDate(d.getDate() - dow);
-    return d.toISOString().slice(0, 10);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
 }
 
 function fmtDateShort(d) { return d.slice(5); } // MM-DD
@@ -782,9 +785,15 @@ async function payWorkersByAttendance() {
         }
         let count = 0;
         const wOut = await api('workers');
+        const ws = weekStartStr();
+        // Avoid creating duplicate wage records for the same worker + week.
+        const existing = await api('payments');
+        const done = new Set(existing.data
+            .filter(p => (p.category === 'wage' || p.category === null) && p.week_start === ws && p.worker_id)
+            .map(p => String(p.worker_id)));
         for (const w of wOut.data) {
             const days = presentByWorker[w.id];
-            if (days && w.daily_rate > 0) {
+            if (days && w.daily_rate > 0 && !done.has(String(w.id))) {
                 await api('payments', 'POST', {
                     payment_date: new Date().toISOString().slice(0, 10),
                     description: `Weekly wages (${days} day${days > 1 ? 's' : ''})`,
@@ -794,7 +803,7 @@ async function payWorkersByAttendance() {
                     amount: days * w.daily_rate,
                     recipient: w.name,
                     status: 'pending',
-                    week_start: weekStartStr()
+                    week_start: ws
                 });
                 count++;
             }
@@ -945,6 +954,19 @@ function fetchLiveWeather() {
             const { latitude: lat, longitude: lon } = pos.coords;
             const key = WEATHER_API_KEY;
 
+            // Reverse-geocode to the smallest local area (town/ward/village), not the big city.
+            let localArea = '';
+            try {
+                const rev = await fetchJson(`https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=5&appid=${key}`);
+                if (Array.isArray(rev) && rev.length) {
+                    // Results are ordered most-specific first; pick the finest-grained named place.
+                    const pick = rev.find(r => r.name && !/(county|province|region|state|country)/i.test(r.name)) || rev[0];
+                    const parts = [pick.name];
+                    if (pick.state && pick.state !== pick.name) parts.push(pick.state);
+                    localArea = parts.join(', ');
+                }
+            } catch (_) { /* non-fatal */ }
+
             // Try One Call 3.0 for a true 7-day daily forecast + current
             let current = null, daily = [];
             try {
@@ -953,7 +975,7 @@ function fetchLiveWeather() {
                     if (one.current) {
                         const c = one.current;
                         current = {
-                            city: one.timezone || '',
+                            city: localArea || one.timezone || '',
                             temp: c.temp, feels_like: c.feels_like,
                             humidity: c.humidity,
                             condition: c.weather[0].main, description: c.weather[0].description,
@@ -974,7 +996,7 @@ function fetchLiveWeather() {
                 const fct = await fetchJson(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${key}`);
                 if (cur && cur.weather) {
                     current = {
-                        city: cur.name, temp: cur.main.temp, feels_like: cur.main.feels_like,
+                        city: localArea || cur.name, temp: cur.main.temp, feels_like: cur.main.feels_like,
                         humidity: cur.main.humidity,
                         condition: cur.weather[0].main, description: cur.weather[0].description,
                         icon: cur.weather[0].icon
