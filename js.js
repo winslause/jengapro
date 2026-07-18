@@ -1210,9 +1210,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         const section = t.closest('.main-section').id.replace('-section', '');
         if (!id) return;
         if (isEdit) {
-            ({ workers: editWorker, payments: editPayment, progress: editProgress, site_team: editTeamMember }[section])(id);
+            ({ workers: editWorker, payments: editPayment, progress: editProgress, team: editTeamMember }[section])(id);
         } else {
-            ({ materials: deleteMaterial, workers: deleteWorker, payments: deletePayment, progress: deleteProgress, site_team: deleteTeamMember }[section])(id);
+            ({ materials: deleteMaterial, workers: deleteWorker, payments: deletePayment, progress: deleteProgress, team: deleteTeamMember }[section])(id);
         }
     });
 
